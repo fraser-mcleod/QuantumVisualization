@@ -1,0 +1,30 @@
+For the first phase of developement we would like to visualize the point on Q-lines algorithm
+To visualize, we will:
+ - plot all lines
+ - Choose k lines and search for boundary solutions
+    - create setes for each regions
+ - Recursively search through sets:
+    - dull out all other lines and emphasize certain lines
+    - may be helpful to have a zoom in or zoom out animation. Could accomplish this with a "zoomed_inset_axes"
+ - Stop when we find a Q intersection
+
+ - The visualization should be reflective of what the algorithm is doing
+
+ How do we want to create this solution?
+ - If we ignore the visualization for a moment we would want methods such as:
+    - Solve classically
+    - Constructing the graphs with k lines **
+    - Construct s(R_i) and search for boundary solution
+ - Visually we need to represent:
+    - Solving classically
+    - Constructing s(R_i) and searching for boundary solutions
+    - Making the recursion obvious visually
+
+New plan:
+- First implement DCEL data structure
+- Then implement arrangement construction
+- Then implement finding Q-intersection (could add to DCEL data structure)
+- Then implement constructing regions
+- Then implement recursion
+
+We will have Q-lines class and a DCEL class and maybe a line class
