@@ -12,8 +12,7 @@ class LineArrangement:
         Or visit all the edges of a given vertex.
 
     Attributes:
-        lines: a list of lines in the plane. Each line should be represent as a tuple: (x1, y1, x2, y2) where
-               (x1, y1) and (x2, y2) are two distinct points on the plane.
+        lines: a list of lines in the plane.
         vertexRecord: a list of dictionaries to represent the vertices of the arrangement. Each dictionary will have:
                         coordinates: tuple (x, y)
                         incidentEdge: reference to an arbitrary half edge with v as its origin
@@ -28,7 +27,7 @@ class LineArrangement:
                         prev: previous edge on the boundary of incident face
 
     """
-    def __init__(self, lines: list[tuple]):
+    def __init__(self, lines: list[Line]):
         self.lines = lines
         self.vertexRecord = []
         self.faceRecord = []
@@ -88,7 +87,7 @@ class LineArrangement:
         l1 = self.lines[0]
         l2 = self.lines[1]
 
-    def findIntersection(self, l1: tuple, l2: tuple):
+    def findIntersection(self, l1: Line, l2: Line):
 
 
 class Line():
