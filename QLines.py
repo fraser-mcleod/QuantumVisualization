@@ -1,5 +1,5 @@
 
-
+from __future__ import annotations
 
 
 class LineArrangement:
@@ -34,8 +34,8 @@ class LineArrangement:
         self.faceRecord = []
         self.edgeRecord = []
         # create arrangement
-        left, right, top, bottom = self.findExtreme()
-        self.boundingBox(left, right, top, bottom)
+        # left, right, top, bottom = self.findExtreme()
+        # self.boundingBox(left, right, top, bottom)
 
 
     def boundingBox(self, left: float, right: float, top: float, bottom: float):
@@ -92,12 +92,15 @@ class LineArrangement:
         e5.setTwin(e6)
         e4.setPrev(e6)
 
-        # left edge
+        # top edge
+        # e7 = HalfEdge(v2, v1, None, boundedFace, e1, e5)
         e7 = HalfEdge(v2, v1, None, boundedFace, e1, e5)
         e5.setNext(e7)
+        e1.setPrev(e7)
         e8 = HalfEdge(v1, v2, e7, unBoundedFace, e6, e2)
         e7.setTwin(e8)
         e2.setNext(e8)
+        e6.setPrev(e8)
 
         # add edges and faces to record
         self.vertexRecord.extend([v1, v2, v3, v4])
@@ -186,10 +189,10 @@ class Vertex:
         self.degree = 2
 
     def x(self) -> float:
-        return self.coord[0]
+        return self._coord[0]
 
     def y(self) -> float:
-        return self.coord[1]
+        return self._coord[1]
 
     def incEdge(self) -> HalfEdge:
         return self.incEdge
@@ -221,67 +224,67 @@ class HalfEdge:
     def __init__(self, origin, dest, twin, incFace, next, prev):
         self.origin = origin
         self.dest = dest
-        self.twin = None
+        self.twin = twin
         self.incFace = incFace
-        self.next = None
-        self.prev = None
+        self.next = next
+        self.prev = prev
 
-    @property
+
     def origin(self):
         """Getter method for 'origin'."""
         return self.origin
 
-    @origin.setter
+
     def setOrigin(self, new_origin: Vertex):
         """Setter method for 'origin'."""
         self.origin = new_origin
 
-    @property
+
     def dest(self) -> Vertex:
         """Getter method for 'dest'."""
         return self.dest
 
-    @dest.setter
+
     def setDest(self, new_dest: Vertex):
         """Setter method for 'dest'."""
         self.dest = new_dest
 
-    @property
+
     def twin(self) -> HalfEdge:
         """Getter method for 'twin'."""
         return self.twin
 
-    @twin.setter
+
     def setTwin(self, new_twin: HalfEdge):
         """Setter method for 'twin'."""
         self.twin = new_twin
 
-    @property
+
     def incFace(self) -> Face:
         """Getter method for 'incFace'."""
         return self.incFace
 
-    @incFace.setter
+
     def setIncFace(self, new_incFace: Face):
         """Setter method for 'incFace'."""
         self.incFace = new_incFace
 
-    @property
+
     def next(self) -> HalfEdge:
         """Getter method for 'next'."""
         return self.next
 
-    @next.setter
+
     def setNext(self, new_next: HalfEdge):
         """Setter method for 'next'."""
         self.next = new_next
 
-    @property
+
     def prev(self) -> HalfEdge:
         """Getter method for 'prev'."""
         return self.prev
 
-    @prev.setter
+
     def setPrev(self, new_prev: HalfEdge):
         """Setter method for 'prev'."""
         self.prev = new_prev
