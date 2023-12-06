@@ -1,5 +1,6 @@
 
 from __future__ import annotations
+from fractions import Fraction
 
 
 class LineArrangement:
@@ -125,7 +126,7 @@ class LineArrangement:
             edge = self.edgeRecord[self.vertexRecord[self.bbVertex]["incEdge"]]
             # find intersection between edge and line
 
-    def findExtreme(self) -> tuple:
+    def extremePoints(self) -> tuple:
         """Find the leftmost, rightmost, topmost, and bottommost intersection point in self.lines
 
         return:
@@ -136,7 +137,7 @@ class LineArrangement:
         right, bottom = left, top
 
         for i in range(len(self.lines)-1):
-            for j in range(len, i+1, len(self.lines)):
+            for j in range(i+1, len(self.lines)):
                 x, y = self.lines[i].intercept(self.lines[j])
                 if (x < left):
                     left = x
@@ -308,9 +309,10 @@ class Line():
     def __init__(self, p1: tuple, p2:tuple):
         self.p1 = p1
         self.p2 = p2
-        self.slope = (p2[1]-p1[1])/(p2[1]-p2[0])
-        self.yInt = self.p1[1] - self.slope*p1[0]
-        self.xInt = self.yInt/(-self.slope)
+        self.slope = Fraction(p2[1]-p1[1],p2[0]-p1[0])
+        self.yInt = Fraction(self.p1[1] - self.slope*p1[0])
+        self.xInt = Fraction(self.yInt, (-self.slope))
+        print("y = ", self.slope, "*x + ", self.yInt)
 
     def intercept(self, l: Line) -> tuple:
         """Return the interscetion between self and l. If parrallel return None
