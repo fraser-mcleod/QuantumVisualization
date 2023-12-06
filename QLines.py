@@ -25,6 +25,7 @@ class LineArrangement:
                         incidentFace: a lies to the left of edge e when traversed from origin destination.
                         next: next edge on the boundary of incident face
                         prev: previous edge on the boundary of incident face
+        bbVertex: refernce to the top left vertex of the bounding box
 
     """
     def __init__(self, lines: list[Line]):
@@ -33,6 +34,9 @@ class LineArrangement:
         self.faceRecord = []
         self.edgeRecord = []
         # create arrangement
+        left, right, top, bottom = self.findExtreme()
+        self.boundingBox(left, right, top, bottom)
+
 
     def boundingBox(self, left: float, right: float, top: float, bottom: float):
         """Compute a bounding box with corners (left, top), (right, top), (right, bottom), (left, bottom)
@@ -47,10 +51,16 @@ class LineArrangement:
         assert len(self.vertexRecord) == 0
 
         # We will have 4 vertices, 8 half edges, and 2 faces
+
+        # TODO: vertex, edge, and face each need to be objects. That way we can actually store references to them
+        #      not just to where they live in the list
+
+        # add all four vertices and give reference to one of them with bounding box attribute
         self.vertexRecord.append({"self": 0, "coord": (left, top), "incEdge": 4})
         self.vertexRecord.append({"self": 1, "coord": (right, top), "incEdge": 5})
         self.vertexRecord.append({"self": 2, "coord": (right, bottom), "incEdge": 6})
         self.vertexRecord.append({"self": 3,"coord": (left, bottom), "incEdge": 7})
+        self.bbVertex = 0
 
         # edges going counter clockwise, beginning at (left, top) vertex, left is bounded face
         self.edgeRecord.append({"self": 0, "origin": 0, "twin": 7, "incFace": 0, "next": 1, "prev": 3}) #0
@@ -74,8 +84,15 @@ class LineArrangement:
         Args:
             lines: a list of lines represented by a 4-tuple: (x1, y1, x2, y2) of two points on the line
         """
-        # begin by computing the bounding box
+        assert len(self.bbVertex is not None)  # make sure bounding box has been created
 
+        for i, line in enumerate(self.lines):
+            line = self.lines[i]
+            # find the edge e that containes the leftmost intersection with l
+            # start at self.edgeRecord[self.vertex[bbVertex]["incEdge"]]
+            leftMost = None
+            edge = self.edgeRecord[self.vertexRecord[self.bbVertex]["incEdge"]]
+            # find intersection between edge and line
 
     def findExtreme(self) -> tuple:
         """Find the leftmost, rightmost, topmost, and bottommost intersection point in self.lines
@@ -104,6 +121,89 @@ class LineArrangement:
 
 
 
+
+class HalfEdge:
+    """An undirected edge split into two half edges.
+
+    The purpose of a half-edge is to have each edge correspond with a different face and make traversals easier.
+    Each half edge has a twin half edge.
+
+    Attributes:
+        origin: reference to origin vertex
+        dest: reference to dest vertex
+        twin: reference to its twin half edge
+        incFace: reference to the adjacent face
+        next: the next edge along the face
+        prev: the prev edge along the face
+    """
+
+    def __init__(self, origin, dest, incFace):
+        self.origin = origin
+        self.dest = dest
+        self.twin = None
+        self.incFace = incFace
+        self.next = None
+        self.prev = None
+
+    @property
+    def origin(self):
+        """Getter method for 'origin'."""
+        return self.origin
+
+    @origin.setter
+    def origin(self, new_origin: Vertex):
+        """Setter method for 'origin'."""
+        self.origin = new_origin
+
+    @property
+    def dest(self) -> Vertex:
+        """Getter method for 'dest'."""
+        return self.dest
+
+    @dest.setter
+    def dest(self, new_dest: Vertex):
+        """Setter method for 'dest'."""
+        self.dest = new_dest
+
+    @property
+    def twin(self) -> HalfEdge:
+        """Getter method for 'twin'."""
+        return self.twin
+
+    @twin.setter
+    def twin(self, new_twin: HalfEdge):
+        """Setter method for 'twin'."""
+        self.twin = new_twin
+
+    @property
+    def incFace(self) -> Face:
+        """Getter method for 'incFace'."""
+        return self.incFace
+
+    @incFace.setter
+    def incFace(self, new_incFace: Face):
+        """Setter method for 'incFace'."""
+        self.incFace = new_incFace
+
+    @property
+    def next(self) -> HalfEdge:
+        """Getter method for 'next'."""
+        return self.next
+
+    @next.setter
+    def next(self, new_next: HalfEdge):
+        """Setter method for 'next'."""
+        self.next = new_next
+
+    @property
+    def prev(self) -> HalfEdge:
+        """Getter method for 'prev'."""
+        return self.prev
+
+    @prev.setter
+    def prev(self, new_prev: HalfEdge):
+        """Setter method for 'prev'."""
+        self.prev = new_prev
 
 
 
