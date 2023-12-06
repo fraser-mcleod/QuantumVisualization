@@ -119,6 +119,36 @@ class LineArrangement:
 
         return (left, right, top, bottom)
 
+class Face:
+    """Simple face class
+
+    Attributes:
+    """
+class Vertex:
+    """Simple Vertex class
+
+    Attributes:
+        coordinates: tuple (x, y)
+        incidentEdge: reference to an arbitrary half edge with v as its origin
+        degree: the degree of the vertex
+    """
+
+    def __init__(self, coord: tuple, incEdge: HalfEdge):
+        self.coord = coord
+        self.incEdge = incEdge
+        self.degree = 2
+
+    def x(self) -> float:
+        return self.coord[0]
+
+    def y(self) -> float:
+        return self.coord[1]
+
+    def incEdge(self) -> HalfEdge:
+        return self.incEdge
+
+
+
 
 
 
