@@ -56,27 +56,55 @@ class LineArrangement:
         #      not just to where they live in the list
 
         # add all four vertices and give reference to one of them with bounding box attribute
-        self.vertexRecord.append({"self": 0, "coord": (left, top), "incEdge": 4})
-        self.vertexRecord.append({"self": 1, "coord": (right, top), "incEdge": 5})
-        self.vertexRecord.append({"self": 2, "coord": (right, bottom), "incEdge": 6})
-        self.vertexRecord.append({"self": 3,"coord": (left, bottom), "incEdge": 7})
-        self.bbVertex = 0
+        v1 = Vertex((left, top), None)
+        v2 = Vertex((right, top), None)
+        v3 = Vertex((right, bottom), None)
+        v4 = Vertex((left, bottom), None)
+        self.bbVertex = v1
 
-        # edges going counter clockwise, beginning at (left, top) vertex, left is bounded face
-        self.edgeRecord.append({"self": 0, "origin": 0, "twin": 7, "incFace": 0, "next": 1, "prev": 3}) #0
-        self.edgeRecord.append({"self": 1, "origin": 3, "twin": 6, "incFace": 0, "next": 2, "prev": 0}) #1
-        self.edgeRecord.append({"self": 2, "origin": 2, "twin": 5, "incFace": 0, "next": 3, "prev": 1}) #2
-        self.edgeRecord.append({"self": 3, "origin": 1, "twin": 4, "incFace": 0, "next": 0, "prev": 2}) #3
+        # create two face objects - one bounded one unbounded
+        boundedFace = Face(None, None)
+        unBoundedFace = Face(None, None)
 
-        # edges going clockwise, beginning at (left, top) vertex, left is unbounded face
-        self.edgeRecord.append({"self": 4, "origin": 0, "twin": 3, "incFace": 1, "next": 5, "prev": 3}) #4
-        self.edgeRecord.append({"self": 5, "origin": 1, "twin": 2, "incFace": 1, "next": 6, "prev": 4}) #5
-        self.edgeRecord.append({"self": 6, "origin": 2, "twin": 1, "incFace": 1, "next": 7, "prev": 5}) #6
-        self.edgeRecord.append({"self": 7, "origin": 3, "twin": 0, "incFace": 1, "next": 8, "prev": 6}) #7
 
-        # 0 is the bounded face and 1 is the unbounded face
-        self.faceRecord.append({"self": 0, "outComp": 4, "inComp": []})
-        self.faceRecord.append({"self": 1, "outComp": None, "inComp:": [4]})
+        # add both half edges moving around counter-clockwise
+        e1 = HalfEdge(v1, v4, None, boundedFace, None, None)
+        e2 = HalfEdge(v4, v1, e1, unBoundedFace, None, None)
+        v1.setIncEdge(e1)
+        v4.setIncEdge(e2)
+        e1.setTwin(e2)
+        boundedFace.setOutComp(e1)
+        unBoundedFace.setInComp(e2)
+
+        # bottom edge
+        e3 = HalfEdge(v4, v3, None, boundedFace, None, e1)
+        e1.setNext(e3)
+        e4 = HalfEdge(v3, v4, e3, unBoundedFace, e2, None)
+        e3.setTwin(e4)
+        e2.setPrev(e4)
+
+        # right edge
+        e5 = HalfEdge(v3, v2, None, boundedFace, None, e3)
+        e3.setNext(e5)
+        e6 = HalfEdge(v2, v3, e5, unBoundedFace, e4, None)
+        v3.setIncEdge(e5)
+        v2.setIncEdge(e6)
+        e5.setTwin(e6)
+        e4.setPrev(e6)
+
+        # left edge
+        e7 = HalfEdge(v2, v1, None, boundedFace, e1, e5)
+        e5.setNext(e7)
+        e8 = HalfEdge(v1, v2, e7, unBoundedFace, e6, e2)
+        e7.setTwin(e8)
+        e2.setNext(e8)
+
+        # add edges and faces to record
+        self.vertexRecord.extend([v1, v2, v3, v4])
+        self.faceRecord.extend([boundedFace, unBoundedFace])
+        self.edgeRecord.extend([e1, e2, e3, e4, e5, e6, e7, e8])
+
+
 
     def lineArrangement(self):
         """Compute the arrangement of lines on the plane and store in DCEL
@@ -166,6 +194,9 @@ class Vertex:
     def incEdge(self) -> HalfEdge:
         return self.incEdge
 
+    def setIncEdge(self, e: HalfEdge):
+        self.incEdge = e
+
 
 
 
@@ -187,7 +218,7 @@ class HalfEdge:
         prev: the prev edge along the face
     """
 
-    def __init__(self, origin, dest, incFace):
+    def __init__(self, origin, dest, twin, incFace, next, prev):
         self.origin = origin
         self.dest = dest
         self.twin = None
