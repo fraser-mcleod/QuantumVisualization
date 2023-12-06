@@ -74,7 +74,7 @@ class LineArrangement:
         v4.setIncEdge(e2)
         e1.setTwin(e2)
         boundedFace.setOutComp(e1)
-        unBoundedFace.setInComp(e2)
+        unBoundedFace.setInComp([e2])
 
         # bottom edge
         e3 = HalfEdge(v4, v3, None, boundedFace, None, e1)
@@ -155,10 +155,10 @@ class Face:
 
     Attributes:
         outComp: reference to half edge on the outer boundary of f, null if unbounded
-        inComp: reference to a half edge on a hole of a unbounded face
+        inComp: reference to a half edge on the exterior of a face contained within an unbounded face
     """
 
-    def __init__(self, outComp: HalfEdge, inComp: HalfEdge):
+    def __init__(self, outComp: HalfEdge, inComp: list[HalfEdge]):
         self.outComp = outComp
         self.inComp = inComp
 
