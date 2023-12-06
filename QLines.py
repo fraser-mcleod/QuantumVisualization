@@ -84,10 +84,30 @@ class LineArrangement:
             a tuple (left, right, top, bottom) of integers representing the most extreme values
             of the intersection points
         """
-        l1 = self.lines[0]
-        l2 = self.lines[1]
+        left, top = self.lines[0].intercept(self.lines[1])
+        right, bottom = left, top
 
-    def findIntersection(self, l1: Line, l2: Line):
+        for i in range(len(self.lines)-1):
+            for j in range(len, i+1, len(self.lines)):
+                x, y = self.lines[i].intercept(self.lines[j])
+                if (x < left):
+                    left = x
+                elif (x > right):
+                    right = x
+
+                if (y < bottom):
+                    bottom = y
+                elif (y > top):
+                    top = y
+
+        return (left, right, top, bottom)
+
+
+
+
+
+
+
 
 
 class Line():
