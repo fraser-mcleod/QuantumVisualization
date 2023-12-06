@@ -123,7 +123,26 @@ class Face:
     """Simple face class
 
     Attributes:
+        outComp: reference to half edge on the outer boundary of f, null if unbounded
+        inComp: reference to a half edge on a hole of a unbounded face
     """
+
+    def __init__(self, outComp: HalfEdge, inComp: HalfEdge):
+        self.outComp = outComp
+        self.inComp = inComp
+
+    def outComp(self) -> HalfEdge:
+        return self.outComp
+
+    def setOutComp(self, newOutComp):
+        self.outComp = newOutComp
+
+    def inComp(self) -> HalfEdge:
+        return HalfEdge
+
+    def setInComp(self, newInComp):
+        self.inComp = newInComp
+
 class Vertex:
     """Simple Vertex class
 
@@ -146,6 +165,7 @@ class Vertex:
 
     def incEdge(self) -> HalfEdge:
         return self.incEdge
+
 
 
 
@@ -181,7 +201,7 @@ class HalfEdge:
         return self.origin
 
     @origin.setter
-    def origin(self, new_origin: Vertex):
+    def setOrigin(self, new_origin: Vertex):
         """Setter method for 'origin'."""
         self.origin = new_origin
 
@@ -191,7 +211,7 @@ class HalfEdge:
         return self.dest
 
     @dest.setter
-    def dest(self, new_dest: Vertex):
+    def setDest(self, new_dest: Vertex):
         """Setter method for 'dest'."""
         self.dest = new_dest
 
@@ -201,7 +221,7 @@ class HalfEdge:
         return self.twin
 
     @twin.setter
-    def twin(self, new_twin: HalfEdge):
+    def setTwin(self, new_twin: HalfEdge):
         """Setter method for 'twin'."""
         self.twin = new_twin
 
@@ -211,7 +231,7 @@ class HalfEdge:
         return self.incFace
 
     @incFace.setter
-    def incFace(self, new_incFace: Face):
+    def setIncFace(self, new_incFace: Face):
         """Setter method for 'incFace'."""
         self.incFace = new_incFace
 
@@ -221,7 +241,7 @@ class HalfEdge:
         return self.next
 
     @next.setter
-    def next(self, new_next: HalfEdge):
+    def setNext(self, new_next: HalfEdge):
         """Setter method for 'next'."""
         self.next = new_next
 
@@ -231,7 +251,7 @@ class HalfEdge:
         return self.prev
 
     @prev.setter
-    def prev(self, new_prev: HalfEdge):
+    def setPrev(self, new_prev: HalfEdge):
         """Setter method for 'prev'."""
         self.prev = new_prev
 
