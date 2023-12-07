@@ -151,14 +151,17 @@ class LineArrangement:
                 p2 = self.lineEdgeInt(line, e2)
 
                 # normal means p2 is not a vertex
-                e1 = self.normalFaceSplit(e1, e2, f1, p1, p2)
+                e1 = self.simpleFaceSplit(e1, e2, f1, p1, p2)
+
+                # if
 
 
 
 
 
 
-    def normalFaceSplit(self, e1: HalfEdge, e2: HalfEdge, f1: Face, p1: tuple, p2, tuple) -> HalfEdge:
+
+    def simpleFaceSplit(self, e1: HalfEdge, e2: HalfEdge, f1: Face, p1: tuple, p2, tuple) -> HalfEdge:
         # In the first case, assume p1 is an existing vertex and p2 is a new vertex
 
         # We begin by p1, e1, and f. We walk counter-clockwise around f until we encounter
@@ -167,7 +170,11 @@ class LineArrangement:
 
         # Create new vertices, faces, and edges between the vertices
         v1 = Vertex(p1, None)
-        v2 = Vertex(p2, None)
+        if p2 != e2.dest().coord():
+            v2 = Vertex(p2, None)
+        else:
+            v2 = e2.dest()
+
         newEdge1 = HalfEdge(v2, v1, None, f1, e1, None)  # Set twin and prev later
         newEdge2 = HalfEdge(v1, v2, newEdge1, None, None, e1.prev)  # Set face and next later
         newEdge1.setTwin(newEdge2)
@@ -175,20 +182,51 @@ class LineArrangement:
         f2 = Face(newEdge2, None)
         newEdge2.setIncFace(f2)
 
-        # split e2 and update accordingly
-        newEdge3 = HalfEdge(v2, e2.dest(), None, f2, e2.next(), newEdge2)  # set twin shortly
-        newEdge4 = HalfEdge(e2.dest(), v2, newEdge3, e2.twin().incFace(), e2.twin(), e2.twin().prev())
-        newEdge3.setTwin(newEdge4)
+        if p2 != e2.dest.coord():
+            # split e2 and update accordingly
+            newEdge3 = HalfEdge(v2, e2.dest(), None, f2, e2.next(), newEdge2)  # set twin shortly
+            newEdge4 = HalfEdge(e2.dest(), v2, newEdge3, e2.twin().incFace(), e2.twin(), e2.twin().prev())
+            newEdge3.setTwin(newEdge4)
 
-        e2.setDest(v2)
-        e2.setNext(newEdge1)
-        e2.twin().setOrigin(v2)
-        e2.twin().setPrev(newEdge4)
+            e2.setDest(v2)
+            e2.setNext(newEdge1)
+            e2.twin().setOrigin(v2)
+            e2.twin().setPrev(newEdge4)
 
-        newEdge1.setPrev(e2)
-        newEdge2.setNext(newEdge3)
+            newEdge1.setPrev(e2)
+            newEdge2.setNext(newEdge3)
 
-        return e2.twin()
+            return e2.twin()
+        else:
+            e2.next().setPrev(newEdge2)
+            newEdge2.setNext(e2.next())
+            newEdge1.setPrev(e2)
+            e2.setNext(newEdge1)
+
+            # find the next face intersected by l
+            # assume unique lines
+            e2 = e2.next()
+            slope1 = Fraction(e2.origin().coord[0]-e2.dest().coord[0], e2.origin().coord[1]-e2.dest().coord[1])
+            e2 = e2.twin()
+            e2 = e2.next()
+            slope2 = Fraction(e2.origin().coord[0]-e2.dest().coord[0], e2.origin().coord[1]-e2.dest().coord[1])
+
+            # walk around vertex until we find a line with equivalent slope, at which point we can return
+            while(slope1 != slope2):
+                e2 = e2.twin()
+                e2 = e2.next()
+                slope2 = Fraction(e2.origin().coord[0]-e2.dest().coord[0], e2.origin().coord[1]-e2.dest().coord[1])
+
+
+
+            return e2
+
+
+
+
+
+
+
 
 
 
