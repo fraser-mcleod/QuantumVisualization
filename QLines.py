@@ -251,7 +251,7 @@ class LineArrangement:
                 if leftMostIntersection is None:
                     leftMostIntersection = intersection[0]
                     leftMostEdge = edge
-                elif intersection < leftMostIntersection:
+                elif intersection[0] < leftMostIntersection:
                     leftMostIntersection = intersection[0]
                     leftMostEdge = edge
 
@@ -273,6 +273,7 @@ class LineArrangement:
         """
         left, top = self.lines[0].intercept(self.lines[1])
         right, bottom = left, top
+
 
         for i in range(len(self.lines)-1):
             for j in range(i+1, len(self.lines)):
@@ -429,7 +430,7 @@ class HalfEdge:
 
     def setPrev(self, new_prev: HalfEdge):
         """Setter method for 'prev'."""
-        self.prev = new_prev
+        self._prev = new_prev
 
 
 
@@ -453,7 +454,8 @@ class Line():
         if p2[0] != p1[0]:
             self._slope = Fraction(p2[1]-p1[1],p2[0]-p1[0])
             self._yInt = Fraction(self._p1[1] - self._slope*p1[0])
-            self._xInt = Fraction(self._yInt, (-self._slope))
+            if self._slope != 0:
+                self._xInt = Fraction(self._yInt, (-self._slope))
             self._vertical = None
         else:
             self._slope = None
@@ -465,18 +467,24 @@ class Line():
     def intercept(self, l: Line) -> tuple:
         """Return the interscetion between self and l. If parrallel return None
         """
-        if (self.slope() == l.slope()):
+        if self.slope() == l.slope():
             return None
-        elif (self.vertical() is not None) and (l.vertical() is not None):
-            x = Fraction(l.yInt() - self.yInt()), (self.slope()-l.slope())
-            y = Fraction(self._slope*x + self._yInt)
-        else:
-            if self.vertical() is None:
-                x = self.vertical()
-                y = Fraction(l.slope()*x + l.yInt())
-            else:
-                x = l.vertical()
-                y = Fraction(self.slope()*x + self.yInt())
+
+        # if self is vertical
+        if self.vertical() is not None:
+            x = self.vertical()
+            y = Fraction(l.slope()*x + l.yInt())
+            return (x, y)
+
+        # if given line is vertical
+        if l.vertical() is not None:
+            x = self.vertical()
+            y = Fraction(self.slope()*x + self.yInt)
+            return (x, y)
+
+        # otherwise the lines are not vertical and not parrallel
+        x = Fraction(l.yInt() - self.yInt(), self.slope() - l.slope())
+        y = self.slope()*x + self.yInt()
 
         return (x, y)
 
