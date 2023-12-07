@@ -1,5 +1,6 @@
 
 from __future__ import annotations
+
 from fractions import Fraction
 
 
@@ -121,10 +122,23 @@ class LineArrangement:
         assert len(self.bbVertex is not None)  # make sure bounding box has been created
 
         for i, line in enumerate(self.lines):
-            edge = self.leftMostedge(line)
+            # In the first case, assume we enter and leave the face along an edge, not a vertex
+            # We begin by p1, e1, and f. We walk counter-clockwise around f until we encounter
+            # an edge that intersects line. Then set this point as p2 and this edge as e2.
+            # We then need to create new vertices v1 nad v2, split e1 and e2 and update f.
+            e1 = self.leftMostedge(line).twin()
 
 
 
+
+    def lineEdgeInt(self, line: Line, edge: HalfEdge):
+        """Determine if the given line and edge intersect"""
+        l2 = line(edge.origin.coord, edge.dest.coord)
+        p = line.intercept(l2)
+        if (p[0] >= min(edge.origin.coord[0], edge.dest.coord[0])) and (p[0] <= max(edge.origin.coord[0], edge.dest.coord[0])):
+            return p
+
+        return None
 
     def leftMostedge(self, line: Line) -> HalfEdge:
         """Compute the edge of the bounding box that has the leftmost intersection with the given line"""
@@ -231,6 +245,9 @@ class Vertex:
 
     def setIncEdge(self, e: HalfEdge):
         self.incEdge = e
+
+    def coord(self) -> tuple:
+        return self.coord
 
 
 
