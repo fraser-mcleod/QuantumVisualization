@@ -122,11 +122,59 @@ class LineArrangement:
         assert len(self.bbVertex is not None)  # make sure bounding box has been created
 
         for i, line in enumerate(self.lines):
-            # In the first case, assume we enter and leave the face along an edge, not a vertex
-            # We begin by p1, e1, and f. We walk counter-clockwise around f until we encounter
-            # an edge that intersects line. Then set this point as p2 and this edge as e2.
-            # We then need to create new vertices v1 nad v2, split e1 and e2 and update f.
+            # find the edge to begin at
             e1 = self.leftMostedge(line).twin()
+
+            # while the face of e1 is bounded
+            while (e1.incFace().outComp() is not None):
+                # find the intersection point, face, and second intersection point
+                p1 = self.lineEdgeInt(line, e1)
+                f1 = e1.incFace()
+                e2 = e1.next()
+                # find the next edge that intersects l
+                while (self.lineEdgeInt(line, e2) is None):
+                    e2 = e2.next()
+                p2 = self.lineEdgeInt(line, e2)
+
+                # normal means p1 is already a vertex and p2 is not
+                e1 = self.normalFaceSplit(e1, e2, f1, p1, p2)
+
+
+
+
+
+
+    def normalFaceSplit(self, e1: HalfEdge, e2: HalfEdge, f1: Face, p1: tuple, p2, tuple) -> HalfEdge:
+        # In the first case, assume p1 is an existing vertex and p2 is a new vertex
+
+        # We begin by p1, e1, and f. We walk counter-clockwise around f until we encounter
+        # an edge that intersects line. Then set this point as p2 and this edge as e2.
+        # We then need to create new vertices v1 nad v2, split e1 and e2 and update f.
+
+        # Create new vertices, faces, and edges between the vertices
+        v1 = Vertex(p1, None)
+        v2 = Vertex(p2, None)
+        newEdge1 = HalfEdge(v2, v1, None, f1, e1, None)  # Set twin and prev later
+        newEdge2 = HalfEdge(v1, v2, newEdge1, None, None, e1.prev)  # Set face and next later
+        newEdge1.setTwin(newEdge2)
+        f1.setOutComp(newEdge1)
+        f2 = Face(newEdge2, None)
+        newEdge2.setIncFace(f2)
+
+        # split e2 and update accordingly
+        newEdge3 = HalfEdge(v2, e2.dest(), None, f2, e2.next(), newEdge2)  # set twin shortly
+        newEdge4 = HalfEdge(e2.dest(), v2, newEdge3, e2.twin().incFace(), e2.twin(), e2.twin().prev())
+        newEdge3.setTwin(newEdge4)
+
+        e2.setDest(v2)
+        e2.setNext(newEdge1)
+        e2.twin().setOrigin(v2)
+        e2.twin().setPrev(newEdge4)
+
+        newEdge1.setPrev(e2)
+        newEdge2.setNext(newEdge3)
+
+        return e2.twin()
 
 
 
