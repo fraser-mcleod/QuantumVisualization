@@ -312,7 +312,7 @@ class Line():
         self.slope = Fraction(p2[1]-p1[1],p2[0]-p1[0])
         self.yInt = Fraction(self.p1[1] - self.slope*p1[0])
         self.xInt = Fraction(self.yInt, (-self.slope))
-        print("y = ", self.slope, "*x + ", self.yInt)
+        # print("y = ", self.slope, "*x + ", self.yInt)
 
     def intercept(self, l: Line) -> tuple:
         """Return the interscetion between self and l. If parrallel return None

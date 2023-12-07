@@ -1,10 +1,17 @@
 import QLines
 
 from time import sleep
+from fractions import Fraction
 
+def test_ExtremePoints(lines: list[QLines.Line], expected: tuple):
+    """A test a single instance of computing extreme points. No output implies success."""
+    test = QLines.LineArrangement(lines)
+    result = test.extremePoints()
+    if result != expected:
+        print("Error in extreme points! Expected: ", expected, "but got: ", result)
 
 def test_boundingBox(left, right, top, bottom):
-    """Unit tests for bounding box"""
+    """Test a single case of forming a bounding box. No output imples success."""
     test = QLines.LineArrangement(None)
     test.boundingBox(left, right, top, bottom)
     corners = [(left, top), (right, top), (right, bottom), (left, bottom)]
@@ -62,6 +69,13 @@ def test_boundingBox(left, right, top, bottom):
 def main():
     test_boundingBox(10, 40, 30, 0)
     test_boundingBox(-100, 40.5, 36, -0.1)
+    l1 = QLines.Line((1, 0), (10, 15))
+    l2 = QLines.Line((6, 7), (8, 8))
+    l3 = QLines.Line((14, 0), (11, 6))
+    l4 = QLines.Line((6, 4), (0, 0))
+    lines = [l1, l2, l3, l4]
+    expected = (Fraction(5, 3), Fraction(24, 1), Fraction(16, 1), Fraction(10, 9))
+    test_ExtremePoints(lines, expected)
 
 
 if __name__ == "__main__":
