@@ -450,23 +450,38 @@ class Line():
     def __init__(self, p1: tuple, p2:tuple):
         self._p1 = p1
         self._p2 = p2
-        self._slope = Fraction(p2[1]-p1[1],p2[0]-p1[0])
-        self._yInt = Fraction(self._p1[1] - self._slope*p1[0])
-        self._xInt = Fraction(self._yInt, (-self._slope))
-        # print("y = ", self.slope, "*x + ", self.yInt)
+        if p2[0] != p1[0]:
+            self._slope = Fraction(p2[1]-p1[1],p2[0]-p1[0])
+            self._yInt = Fraction(self._p1[1] - self._slope*p1[0])
+            self._xInt = Fraction(self._yInt, (-self._slope))
+            self._vertical = None
+        else:
+            self._slope = None
+            self._yInt = None
+            self._xInt = None
+            self._vertical = p1[0]
+
 
     def intercept(self, l: Line) -> tuple:
         """Return the interscetion between self and l. If parrallel return None
         """
-        if (self._slope == l._slope):
+        if (self.slope() == l.slope()):
             return None
-
-        x = (l._yInt - self._yInt)/(self._slope-l._slope)
-        y = self._slope*x + self._yInt
+        elif (self.vertical() is not None) and (l.vertical() is not None):
+            x = Fraction(l.yInt() - self.yInt()), (self.slope()-l.slope())
+            y = Fraction(self._slope*x + self._yInt)
+        else:
+            if self.vertical() is None:
+                x = self.vertical()
+                y = Fraction(l.slope()*x + l.yInt())
+            else:
+                x = l.vertical()
+                y = Fraction(self.slope()*x + self.yInt())
 
         return (x, y)
 
-
+    def vertical(self) -> Fraction:
+        return self._vertical
 
     def x1(self) -> Fraction:
         return self._p1[0]
@@ -490,4 +505,7 @@ class Line():
         return self._xInt
 
     def toString(self) -> str:
-        return f"y = {self.slope()}*x + {self.yInt()}"
+        if self.vertical() is None:
+            return f"y = {self.slope()}*x + {self.yInt()}"
+        else:
+            return f"x = {self.vertical()}"
