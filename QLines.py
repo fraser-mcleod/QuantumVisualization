@@ -63,6 +63,7 @@ class LineArrangement:
         v4 = Vertex((left, bottom), None)
         self.bbVertex = v1
 
+
         # create two face objects - one bounded one unbounded
         boundedFace = Face(None, None)
         unBoundedFace = Face(None, None)
@@ -76,6 +77,7 @@ class LineArrangement:
         e1.setTwin(e2)
         boundedFace.setOutComp(e1)
         unBoundedFace.setInComp([e2])
+        self.unBoundedFace = unBoundedFace
 
         # bottom edge
         e3 = HalfEdge(v4, v3, None, boundedFace, None, e1)
@@ -119,12 +121,41 @@ class LineArrangement:
         assert len(self.bbVertex is not None)  # make sure bounding box has been created
 
         for i, line in enumerate(self.lines):
-            line = self.lines[i]
-            # find the edge e that containes the leftmost intersection with l
-            # start at self.edgeRecord[self.vertex[bbVertex]["incEdge"]]
-            leftMost = None
-            edge = self.edgeRecord[self.vertexRecord[self.bbVertex]["incEdge"]]
-            # find intersection between edge and line
+            edge = self.leftMostedge(line)
+
+
+
+
+    def leftMostedge(self, line: Line) -> HalfEdge:
+        """Compute the edge of the bounding box that has the leftmost intersection with the given line"""
+
+        leftMostIntersection = None
+        leftMostEdge = None
+        edge = self.unBoundedFace.inComp[0]
+        # is the edge vertical?
+        if edge.origin[0] == edge.dest[0]:
+            yInt = Fraction(line.slope*line.x2 + line.yInt)
+            # does the line intersect the edge
+            if (yInt <= edge.origin[0] and yInt >= edge.dest[0]) or (yInt >= edge.origin[0] and yInt <= edge.dest[0]):
+                if (leftMostIntersection is not None):
+                    if (edge.origin[0] < leftMostIntersection):
+                        leftMostIntersection = edge.origin[0]
+                        leftMostEdge = edge
+        else:
+            xInt = Fraction(edge.origin[0]-line.yInt, line.slope)
+            # does the line intersect the edge
+            if (xInt <= edge.origin[1] and xInt >= edge.dest[1]) or (xInt >= edge.origin[1] and xInt <= edge.dest[1]):
+                if (leftMostIntersection is not None):
+                    if (xInt < leftMostIntersection):
+                        leftMostIntersection = xInt
+                        leftMostEdge = edge
+
+        # move onto the next edge
+        edge = edge.next
+
+        return leftMostEdge
+
+
 
     def extremePoints(self) -> tuple:
         """Find the leftmost, rightmost, topmost, and bottommost intersection point in self.lines
