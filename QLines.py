@@ -241,10 +241,10 @@ class LineArrangement:
         leftMostEdge = None
         # edge = self.unBoundedFace.outComp()  # may have to update list/single variable later
         edge = self.outsideEdge
-        x = edge.origin().x()
         # is the edge vertical?
-        if edge.origin().x() == edge.dest().coord().x():
-            yInt = Fraction(line.slope*line.x2() + line.yInt())
+        if edge.origin().x() == edge.dest().x():
+            # yInt = Fraction(line.slope*line.x2() + line.yInt())
+            yInt = Fraction(line._slope*line.x2() + line.yInt())
             # does the intersection lie on the edge
             if (yInt <= edge.origin().y() and yInt >= edge.dest().y()) or (yInt >= edge.origin().y() and yInt <= edge.dest().y()):
                 if (leftMostIntersection is not None):
@@ -252,7 +252,7 @@ class LineArrangement:
                         leftMostIntersection = edge.origin().x()
                         leftMostEdge = edge
         else:
-            xInt = Fraction(edge.origin().x()-line.yInt, line.slope)
+            xInt = Fraction(edge.origin().x()-line._yInt, line._slope)
             # does the line intersect the edge
             if (xInt <= edge.origin().x() and xInt >= edge.dest().x()) or (xInt >= edge.origin().x() and xInt <= edge.dest().x()):
                 if (leftMostIntersection is not None):
@@ -451,40 +451,43 @@ class Line():
     """
 
     def __init__(self, p1: tuple, p2:tuple):
-        self.p1 = p1
-        self.p2 = p2
-        self.slope = Fraction(p2[1]-p1[1],p2[0]-p1[0])
-        self.yInt = Fraction(self.p1[1] - self.slope*p1[0])
-        self.xInt = Fraction(self.yInt, (-self.slope))
+        self._p1 = p1
+        self._p2 = p2
+        self._slope = Fraction(p2[1]-p1[1],p2[0]-p1[0])
+        self._yInt = Fraction(self._p1[1] - self._slope*p1[0])
+        self._xInt = Fraction(self._yInt, (-self._slope))
         # print("y = ", self.slope, "*x + ", self.yInt)
 
     def intercept(self, l: Line) -> tuple:
         """Return the interscetion between self and l. If parrallel return None
         """
-        if (self.slope == l.slope):
+        if (self._slope == l._slope):
             return None
 
-        x = (l.yInt - self.yInt)/(self.slope-l.slope)
-        y = self.slope*x + self.yInt
+        x = (l._yInt - self._yInt)/(self._slope-l._slope)
+        y = self._slope*x + self._yInt
 
         return (x, y)
 
 
 
     def x1(self) -> Fraction:
-        return self.p1[0]
+        return self._p1[0]
 
     def y1(self) -> Fraction:
-        return self.p1[1]
+        return self._p1[1]
 
     def x2(self) -> Fraction:
-        return self.p2[0]
+        return self._p2[0]
 
     def y2(self) -> Fraction:
-        return self.p2[1]
+        return self._p2[1]
 
     def slope(self) -> Fraction:
-        return self.slope
+        return self._slope
 
     def yInt(self) -> Fraction:
-        return self.yInt
+        return self._yInt
+
+    def xInt(self) -> Fraction:
+        return self._xInt
