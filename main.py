@@ -24,8 +24,9 @@ def test_boundingBox(left, right, top, bottom):
         boundedFace = test.faceRecord[0]
 
     # test bounded face by traversing its edges
-    edge = boundedFace.outComp
-    cur_coord = edge.origin.coord
+    # edge = boundedFace.outComp()
+    edge = test.outsideEdge
+    cur_coord = edge.origin().coord()
     # find cur_coord in corners
     start = 0
     for i, coord in enumerate(corners):
@@ -38,12 +39,12 @@ def test_boundingBox(left, right, top, bottom):
         if cur_coord != corners[index]:
             print("Error in bounded face!")
             exit()
-        edge = edge.next
-        cur_coord = edge.origin.coord
+        edge = edge.next()
+        cur_coord = edge.origin().coord()
 
     # test unbounded face by traversing its edges
-    edge = unboundedFace.inComp[0]  # we know there should only be two faces
-    cur_coord = edge.origin.coord
+    edge = edge.twin()  # we know there should only be two faces
+    cur_coord = edge.origin().coord()
     # find cur_coord in corners
     start = 0
     for i, coord in enumerate(corners):
@@ -56,8 +57,8 @@ def test_boundingBox(left, right, top, bottom):
         if cur_coord != corners[index]:
             print("Error in unbounded face!")
             exit()
-        edge = edge.next
-        cur_coord = edge.origin.coord
+        edge = edge.next()
+        cur_coord = edge.origin().coord()
 
 
 
@@ -76,6 +77,11 @@ def main():
     lines = [l1, l2, l3, l4]
     expected = (Fraction(5, 3), Fraction(24, 1), Fraction(16, 1), Fraction(10, 9))
     test_ExtremePoints(lines, expected)
+
+    LA = QLines.LineArrangement(lines)
+    corners = LA.extremePoints()
+    LA.boundingBox(corners[0], corners[1], corners[2], corners[3])
+    LA.lineArrangement()
 
 
 if __name__ == "__main__":
