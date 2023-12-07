@@ -153,10 +153,8 @@ class LineArrangement:
                     e2 = e2.next()
                 p2 = self.lineEdgeInt(line, e2)
 
-                # normal means p2 is not a vertex
-                e1 = self.simpleFaceSplit(e1, e2, f1, p1, p2)
-
-                # if
+                # e1 will be the first edge of the next face
+                e1 = self.faceSplit(e1, e2, f1, p1, p2)
 
 
 
@@ -164,7 +162,9 @@ class LineArrangement:
 
 
 
-    def simpleFaceSplit(self, e1: HalfEdge, e2: HalfEdge, f1: Face, p1: tuple, p2, tuple) -> HalfEdge:
+
+
+    def faceSplit(self, e1: HalfEdge, e2: HalfEdge, f1: Face, p1: tuple, p2, tuple) -> HalfEdge:
         # In the first case, assume p1 is an existing vertex and p2 is a new vertex
 
         # We begin by p1, e1, and f. We walk counter-clockwise around f until we encounter
@@ -229,6 +229,7 @@ class LineArrangement:
         """Determine if the given line and edge intersect"""
         l2 = Line(edge.origin().coord(), edge.dest().coord())
         p = line.intercept(l2)
+        # print(p)
         if p == None:
             return None
 
@@ -239,7 +240,7 @@ class LineArrangement:
 
     def leftMostedge(self, line: Line) -> HalfEdge:
         """Compute the edge of the bounding box that has the leftmost intersection with the given line"""
-        print(line.toString())
+        # print(line.toString())
         leftMostIntersection = None
         leftMostEdge = None
 
@@ -247,9 +248,10 @@ class LineArrangement:
         startCoord = edge.origin().coord()
 
         while True:
-            print(edge.origin().coord())
+            # print(edge.origin().coord())
             # is the edge vertical?
             intersection = self.lineEdgeInt(line, edge)
+            # print(intersection)
             if intersection is not None:
                 if leftMostIntersection is None:
                     leftMostIntersection = intersection[0]
@@ -483,15 +485,14 @@ class Line():
 
 
     def intercept(self, l: Line) -> tuple:
-        """Return the interscetion between self and l. If parrallel return None
+        """Return the intersetion between self and l. If parrallel return None
         """
-        print(self.toString())
-        print(l.toString())
+        # print(self.toString())
+        # print(l.toString())
         if l.isHorizontal():
-            print("l is horizontal")
             y = l.yInt()
             if self.isHorizontal():
-                print("self is horizontal")
+                print("both horizontal")
                 return None
             else:
                 if self.isVertical():
@@ -500,9 +501,9 @@ class Line():
                 else:
                     x = Fraction(y - self.yInt(), self.slope())
         else:
-            print("l is not horizontal")
+            # print("l is not horizontal")
             if self.isHorizontal():
-                print("self is horizontal")
+                # print("self is horizontal")
                 y = self.yInt()
                 if l.isVertical():
                     x = l.xInt()
@@ -512,10 +513,11 @@ class Line():
                     return (x, y)
             else:
                 # neither of them are horizontal
-                print("self is not horizontal")
+                # print("self is not horizontal")
                 if l.isVertical():
                     x = l.xInt()
                     if self.isVertical():
+                        print("both vertical")
                         return None
                     else:
                         y = Fraction(self.slope()*x + self.yInt())
@@ -526,11 +528,12 @@ class Line():
                     else:
                         # neither of them are vertical or horizontal
                         if l.slope() == self.slope():
+                            print("equal slopes")
                             return None
                         else:
                             x = Fraction(l.yInt() - self.yInt(), self.slope() - l.slope())
                             y = Fraction(self.slope()*x + self.yInt())
-                            return (x, y)
+        return (x, y)
 
 
 
