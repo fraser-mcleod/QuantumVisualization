@@ -225,45 +225,42 @@ class LineArrangement:
             return e2
 
 
-    def lineEdgeInt(self, line: Line, edge: HalfEdge):
+    def lineEdgeInt(self, line: Line, edge: HalfEdge) -> tuple:
         """Determine if the given line and edge intersect"""
-        l2 = line(edge.origin.coord, edge.dest.coord)
+        l2 = Line(edge.origin().coord(), edge.dest().coord())
         p = line.intercept(l2)
-        if (p[0] >= min(edge.origin.coord[0], edge.dest.coord[0])) and (p[0] <= max(edge.origin.coord[0], edge.dest.coord[0])):
+        if (p[0] >= min(edge.origin().x(), edge.dest().x())) and (p[0] <= max(edge.origin().x(), edge.dest().x())):
             return p
 
         return None
 
     def leftMostedge(self, line: Line) -> HalfEdge:
         """Compute the edge of the bounding box that has the leftmost intersection with the given line"""
-
+        print(line.toString())
         leftMostIntersection = None
         leftMostEdge = None
-        # edge = self.unBoundedFace.outComp()  # may have to update list/single variable later
+
         edge = self.outsideEdge
-        # is the edge vertical?
-        if edge.origin().x() == edge.dest().x():
-            # yInt = Fraction(line.slope*line.x2() + line.yInt())
-            yInt = Fraction(line._slope*line.x2() + line.yInt())
-            # does the intersection lie on the edge
-            if (yInt <= edge.origin().y() and yInt >= edge.dest().y()) or (yInt >= edge.origin().y() and yInt <= edge.dest().y()):
-                if (leftMostIntersection is not None):
-                    if (edge.origin().x() < leftMostIntersection):
-                        leftMostIntersection = edge.origin().x()
-                        leftMostEdge = edge
-        else:
-            xInt = Fraction(edge.origin().x()-line._yInt, line._slope)
-            # does the line intersect the edge
-            if (xInt <= edge.origin().x() and xInt >= edge.dest().x()) or (xInt >= edge.origin().x() and xInt <= edge.dest().x()):
-                if (leftMostIntersection is not None):
-                    if (xInt < leftMostIntersection):
-                        leftMostIntersection = xInt
-                        leftMostEdge = edge
+        startCoord = edge.origin().coord()
 
-        # move onto the next edge
-        edge = edge.next
+        while True:
+            print(edge.origin().coord())
+            # is the edge vertical?
+            intersection = self.lineEdgeInt(line, edge)
+            if intersection is not None:
+                if leftMostIntersection is None:
+                    leftMostIntersection = intersection[0]
+                    leftMostEdge = edge
+                elif intersection < leftMostIntersection:
+                    leftMostIntersection = intersection[0]
+                    leftMostEdge = edge
 
-        return leftMostEdge
+            # move onto the next edge
+            edge = edge.next()
+            if edge.origin().coord() == startCoord:
+                return leftMostEdge
+
+
 
 
 
@@ -491,3 +488,6 @@ class Line():
 
     def xInt(self) -> Fraction:
         return self._xInt
+
+    def toString(self) -> str:
+        return f"y = {self.slope()}*x + {self.yInt()}"
