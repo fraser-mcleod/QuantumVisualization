@@ -124,11 +124,25 @@ class LineArrangement:
         for i, line in enumerate(self.lines):
             # find the edge to begin at
             e1 = self.leftMostedge(line).twin()
+            # create a new vertex if it is not already one
+            p1 = self.lineEdgeInt(line, e1)
+            if (p1 == e1.origin().coord()):
+                e1.origin().degree += 1  # may need to change this after
+            else:
+                # split edge e1 and create new vertex
+                v = Vertex(p1, e1)
+                newEdge1 = HalfEdge(e1.origin(), v, None, e1.incFace(), e1, e1.prev())
+                newEdge2 = HalfEdge(v, e1.origin(), newEdge1, e1.twin().incFace(), e1.twin().next(), e1.twin())
+                newEdge1.setTwin(newEdge2)
+                e1.setOrigin(v)
+                e1.setPrev(newEdge1)
+                e1.twin().setDest(v)
+                e1.twin().setNext(newEdge2)
 
             # while the face of e1 is bounded
             while (e1.incFace().outComp() is not None):
-                # find the intersection point, face, and second intersection point
-                p1 = self.lineEdgeInt(line, e1)
+                # set the intersection point, face, and second intersection point
+                p1 = e1.origin().coord()
                 f1 = e1.incFace()
                 e2 = e1.next()
                 # find the next edge that intersects l
@@ -136,7 +150,7 @@ class LineArrangement:
                     e2 = e2.next()
                 p2 = self.lineEdgeInt(line, e2)
 
-                # normal means p1 is already a vertex and p2 is not
+                # normal means p2 is not a vertex
                 e1 = self.normalFaceSplit(e1, e2, f1, p1, p2)
 
 
