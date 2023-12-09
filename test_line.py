@@ -18,6 +18,8 @@ class TestLine(unittest.TestCase):
         self.isHorizontal = [False, False, False, True, False]
         self.isVertical = [False, False, False, False, True]
 
+        self.l1Intersections = (None, (Fraction(5, 9), Fraction(5, 9)), (Fraction(39, 7), Fraction(39, 7)), (5, 5), (13, 13))
+        self.l2Intersections = ((Fraction(5, 9), Fraction(5, 9)), None, (Fraction(27, 17), Fraction(185, 17)), (1, 5), (13, 125))
 
     def test_slope(self):
         for i, line in enumerate(self.lines):
@@ -38,3 +40,11 @@ class TestLine(unittest.TestCase):
     def test_isVertical(self):
         for i, line in enumerate(self.lines):
             self.assertEqual(self.isVertical[i], line.isVertical(), f"Error: isVertical wrong for line {i+1}")
+
+    def test_l1_intersection(self):
+        for i, line in enumerate(self.lines):
+            self.assertEqual(self.l1.intercept(line), self.l1Intersections[i], f"Error: l1, l{i+1} intersection is wrong")
+
+    def test_l2_intersection(self):
+        for i, line in enumerate(self.lines):
+            self.assertEqual(self.l2.intercept(line), self.l2Intersections[i], f"Error: l2, l{i+1} intersection is wrong")
