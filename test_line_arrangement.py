@@ -20,4 +20,12 @@ class TestLine(unittest.TestCase):
 
     def test_ExtremePoints_1(self):
           test = LineArrangement(self.lineSet1)
-          self.assertEquals(test.extremePoints(), (Fraction(5/9), 13, 13, Fraction(-13, 3)))
+          self.assertEqual(test.extremePoints(), (Fraction(5, 9), 13, 125, Fraction(-13, 3)))
+
+    def test_ExtremePoints_2(self):
+        test = LineArrangement(self.lineSet2)
+        self.assertEqual(test.extremePoints(), (Fraction(5, 3), Fraction(24, 1), Fraction(16, 1), Fraction(10, 9)))
+
+    def test_ExtremePoints_3(self):
+        test = LineArrangement(self.lineSet3)
+        self.assertEqual(test.extremePoints(), (0, 24, 125, -17))
