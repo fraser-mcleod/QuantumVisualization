@@ -42,7 +42,7 @@ class LineArrangement:
         # self.boundingBox(left, right, top, bottom)
 
 
-    def boundingBox(self, left: float, right: float, top: float, bottom: float):
+    def boundingBox(self, left: Fraction, right: Fraction, top: Fraction, bottom: Fraction):
         """Compute a bounding box with corners (left, top), (right, top), (right, bottom), (left, bottom)
 
         Args:
@@ -81,7 +81,7 @@ class LineArrangement:
         boundedFace.setOutComp(e1)
         unBoundedFace.setInComp(e2)
         # self.unBoundedFace = unBoundedFace
-        self.outsideEdge = e1
+        self.outsideEdge = e2
 
         # bottom edge
         e3 = HalfEdge(v4, v3, None, unBoundedFace, None, e1)
@@ -281,7 +281,7 @@ class LineArrangement:
 
 
 
-    def extremePoints(self) -> tuple:
+    def extremePoints(self) -> tuple[Fraction]:
         """Find the leftmost, rightmost, topmost, and bottommost intersection point in self.lines
 
         return:
@@ -306,6 +306,8 @@ class LineArrangement:
                     top = y
 
         return (left, right, top, bottom)
+
+
 
 class Face:
     """Simple face class
@@ -496,7 +498,7 @@ class Line():
 
 
 
-    def intercept(self, l: Line) -> tuple:
+    def intercept(self, l: Line) -> tuple[Fraction]:
         """Return the intersetion between self and l. If parrallel return None
         """
         # print(self.toString())
