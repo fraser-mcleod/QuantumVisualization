@@ -376,14 +376,21 @@ class LineArrangement:
                 if leftMostIntersection is None:
                     leftMostIntersection = intersection[0]
                     leftMostEdge = edge
-                elif intersection[0] < leftMostIntersection:
+                elif intersection[0] <= leftMostIntersection:
                     leftMostIntersection = intersection[0]
                     leftMostEdge = edge
 
             # move onto the next edge
             edge = edge.next()
             if edge.origin().coord() == startCoord:
-                return leftMostEdge
+                break
+
+        # if we are on a vertex return edge whose destination is vertex
+        if edge.origin().coord() == leftMostIntersection:
+            edge = edge.prev()
+
+        return edge
+
 
 
 
