@@ -544,6 +544,9 @@ class HalfEdge:
         """Setter method for 'prev'."""
         self._prev = new_prev
 
+    def toSring(self)->str:
+        return f"{self.origin().coord()}->{self.dest().coord()}"
+
 
 
 
