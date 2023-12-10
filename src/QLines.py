@@ -162,9 +162,9 @@ class LineArrangement:
             e2 = e2.next()
             p2 = self.lineEdgeInt(line, e2)
 
-        print(f"Line: {line.toString()}")
-        print(f"e1: {e1.toString()}")
-        print(f"e2: {e2.toString()}")
+        # print(f"Line: {line.toString()}")
+        # print(f"e1: {e1.toString()}")
+        # print(f"e2: {e2.toString()}")
 
 
         # print(f"e2: {e2.toSring()}\ne2.twin(): {e2.twin().toSring()}")
@@ -202,7 +202,7 @@ class LineArrangement:
             newEdge2 = HalfEdge(v1, v2, newEdge1, True, None, None)
             newEdge1.setTwin(newEdge2)
 
-            newEdge3 = HalfEdge(v2, e1.dest(), None, True, None, None)
+            newEdge3 = HalfEdge(v2, e2.dest(), None, True, None, None)
             newEdge4 = HalfEdge(e2.dest(), v2, newEdge3, e2.twin().boundedFace(), None, None)
             newEdge3.setTwin(newEdge4)
 

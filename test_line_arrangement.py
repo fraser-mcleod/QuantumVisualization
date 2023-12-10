@@ -55,14 +55,14 @@ class TestLine(unittest.TestCase):
          leftTop = (Fraction(5, 3), 16)
          rightTop = (24, 16)
          leftBottom = (Fraction(5, 3), Fraction(10, 9))
-         rightBottom = (Fraction(24, Fraction(10, 9)))
-         expected_origin = [leftBottom, leftBottom, leftBottom, leftBottom, leftTop]
-         expected_dest = [leftTop, leftTop, leftTop, leftTop, rightTop]
+         rightBottom = (24, Fraction(10, 9))
+         expected_origin = [leftBottom, leftBottom, leftBottom, leftBottom, rightBottom]
+         expected_dest = [leftTop, leftTop, leftTop, leftTop, leftBottom]
          for i, line in enumerate(self.lineSet1):
               result = LA.leftMostedge(line)
               result_origin = result.origin().coord()
               result_dest = result.dest().coord()
-              self.assertEqual((result_origin, result_dest), (expected_origin[i], expected_dest[i]), f"Error in leftmost edge with line {i+1}. \nExpected: {expected_origin[i]}->{expected_dest[i]}.\nResult: {result_origin}->{result_dest}")
+              self.assertEqual((result_origin, result_dest), (expected_origin[i], expected_dest[i]), f"Error in leftmost edge with line {i+1}. Expected: {expected_origin[i]}->{expected_dest[i]}.Result: {result_origin}->{result_dest}")
 
 
     def test_addLine__perimeter_1(self):
@@ -95,8 +95,6 @@ class TestLine(unittest.TestCase):
         for i, expected in enumerate(expected_vertices):
              self.assertEqual(expected, result_vertices[i], f"Error in line arrangement, index {i}.\nExpected: {expected_vertices}\nResult: {result_vertices}")
 
-
-
     def test_addLine_perimeter_4(self):
         l1 = Line((0, 1), (4, 9))
         l2 = Line((3, 0), (0, 12))
@@ -119,15 +117,75 @@ class TestLine(unittest.TestCase):
         for i, expected in enumerate(expected_vertices):
              self.assertEqual(expected, result_vertices[i], f"Error in line arrangement, index {i}.\nExpected: {expected_vertices}\nResult: {result_vertices}")
 
+    def test_addLine__interior_2(self):
+        line = Line((0, 12), (3, 0))
+        LA = LineArrangement([line])
+        LA.boundingBox(0, 10, 10, 0)
+        LA.addLine(line)
+        expected_vertices = [(Fraction(1, 2), 10), (3, 0)]
+        result_vertices = self.lineTraversal(LA, line)
+        for i, expected in enumerate(expected_vertices):
+             self.assertEqual(expected, result_vertices[i], f"Error in line arrangement, index {i}.\nExpected: {expected_vertices}\nResult: {result_vertices}")
 
+    def test_addLine__interior_3(self):
+        line = Line((0, 0), (2, 10))
+        LA = LineArrangement([line])
+        LA.boundingBox(0, 10, 10, 0)
+        LA.addLine(line)
+        expected_vertices = [(0, 0), (2, 10)]
+        result_vertices = self.lineTraversal(LA, line)
+        for i, expected in enumerate(expected_vertices):
+             self.assertEqual(expected, result_vertices[i], f"Error in line arrangement, index {i}.\nExpected: {expected_vertices}\nResult: {result_vertices}")
+
+    def test_addLine__interior_4(self):
+        l1 = Line((0, 1), (4, 9))
+        l2 = Line((0, 12), (3, 0))
+        LA = LineArrangement([l1, l2])
+        LA.boundingBox(0, 10, 10, 0)
+        LA.addLine(l1)
+        LA.addLine(l2)
+        # print(self.perimeterTraversal(LA, (0, 10)))
+        expected_vertices = [(Fraction(1, 2), 10), (Fraction(11, 6), Fraction(14, 3)), (3, 0)]
+        result_vertices = self.lineTraversal(LA, l2)
+        for i, expected in enumerate(expected_vertices):
+             self.assertEqual(expected, result_vertices[i], f"Error in line arrangement, index {i}.\nExpected: {expected_vertices}\nResult: {result_vertices}")
+
+    def test_addLine_interiorFaces_1(self):
+        line = Line((0, 1), (4, 9))
+        LA = LineArrangement([line])
+        LA.boundingBox(0, 10, 10, 0)
+        LA.addLine(line)
+        leftFaceVertices = [(0, 1), (0, 0), (10, 0), (10, 10), (Fraction(9, 2), 10)]
+
+        leftEdge = LA.leftMostedge(line).twin()
+
+        leftResultVertices = self.faceTraversal(LA, leftEdge)
+
+
+        for i, leftCoord in enumerate(leftFaceVertices):
+            self.assertEqual(leftCoord, leftResultVertices[i], f"Error in left face: expected: {leftFaceVertices}. But result: {leftResultVertices}")
+
+
+    def test_addLine_interiorFaces_2(self):
+        line = Line((0, 1), (4, 9))
+        LA = LineArrangement([line])
+        LA.boundingBox(0, 10, 10, 0)
+        LA.addLine(line)
+        rightFaceVertices = [(0, 10), (0, 1), (Fraction(9, 2), 10)]
+        rightEdge = LA.leftMostedge(line).next().twin()
+        rightResultVertices = self.faceTraversal(LA, rightEdge)
+
+        for i, rightCoord in enumerate(rightFaceVertices):
+            self.assertEqual(rightCoord, rightResultVertices[i], f"Error in right face: expected: {rightFaceVertices}. But result: {rightResultVertices}")
 
     def perimeterTraversal(self, LA: LineArrangement, start: tuple):
         """Output a list of visited coordinates on the outside face."""
         edge = LA.outsideEdge
+        print("\nOutside edge:", edge.toString())
         while (edge.origin().coord() != start):
             edge = edge.next()
 
-
+        print(edge.toString())
         edgeList = [edge.origin().coord()]
         edge = edge.next()
         while edge.origin().coord() != edgeList[0]:
@@ -136,31 +194,43 @@ class TestLine(unittest.TestCase):
             # print(f"edge: {edge.toSring()}, {edge}. \nNext edge: {edge.next().toSring()}, {edge.next()}")
         return edgeList
 
+    def faceTraversal(self, LA: LineArrangement, edge: HalfEdge):
+        """traverse the vertices of a face"""
+        vertexList = [edge.origin().coord()]
+        edge = edge.next()
+        count = 0
+        while edge.origin().coord() != vertexList[-1] and count < 10:
+            vertexList.append(edge.origin().coord())
+            edge = edge.next()
+            count +=1
+
+        return vertexList
 
     def lineTraversal(self, LA: LineArrangement, line: Line) -> list[tuple]:
         """Output a list of vertices on the given line in the line arrangement"""
         edge = LA.leftMostedge(line).twin()  # twin so we get interior egde
         vertexList = [edge.origin().coord()]
         # while edge is on a bounded face:
-        edge = edge.next()
-        while edge.incFace().outComp() is None:
-            # find next edge that intersects line
+        while edge.boundedFace():
+            # find next edge with an intersection with line
+            print(f"\nedge: {edge.toString()}\nnextEdge: {edge.next().toString()}")
+            edge = edge.next()
             intersection = LA.lineEdgeInt(line, edge)
             while intersection is None:
+                print(f"\nedge: {edge.toString()}\nnextEdge: {edge.next().toString()}")
                 edge = edge.next()
                 intersection = LA.lineEdgeInt(line, edge)
 
-            vertexList.append(intersection)
-            # find the next edge
-            edge = edge.next().twin().next()
-            slope = Line(edge.dest().coord(), edge.origin().coord()).slope()
-            edge = edge.twin().next()
-            slopeTest = Line(edge.dest().coord(), edge.origin().coord()).slope()
-            while (slope != slopeTest):
-                edge = edge.twin().next()
-                slopeTest = Line(edge.dest().coord(), edge.origin().coord()).slope()
+            if intersection != vertexList[-1]:
+                vertexList.append(intersection)
+
+            edge = edge.twin()
+            # print(edge.toSring())
+            # print(edge.incFace().outComp())
 
         return vertexList
+
+
 
 
 

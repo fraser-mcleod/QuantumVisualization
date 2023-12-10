@@ -68,20 +68,31 @@ def test_boundingBox(left, right, top, bottom):
 
 
 def main():
-    test_boundingBox(10, 40, 30, 0)
-    test_boundingBox(-100, 40.5, 36, -0.1)
-    l1 = QLines.Line((1, 0), (10, 15))
-    l2 = QLines.Line((6, 7), (8, 8))
-    l3 = QLines.Line((14, 0), (11, 6))
-    l4 = QLines.Line((6, 4), (0, 0))
-    lines = [l1, l2, l3, l4]
-    expected = (Fraction(5, 3), Fraction(24, 1), Fraction(16, 1), Fraction(10, 9))
-    test_ExtremePoints(lines, expected)
+    # print(None)
+    # # test_boundingBox(10, 40, 30, 0)
+    # # test_boundingBox(-100, 40.5, 36, -0.1)
+    # l1 = QLines.Line((1, 0), (10, 15))
+    # l2 = QLines.Line((6, 7), (8, 8))
+    # l3 = QLines.Line((14, 0), (11, 6))
+    # l4 = QLines.Line((6, 4), (0, 0))
+    # lines = [l1, l2, l3, l4]
+    # expected = (Fraction(5, 3), Fraction(24, 1), Fraction(16, 1), Fraction(10, 9))
+    # test_ExtremePoints(lines, expected)
 
-    LA = QLines.LineArrangement(lines)
-    corners = LA.extremePoints()
-    LA.boundingBox(corners[0], corners[1], corners[2], corners[3])
-    LA.lineArrangement()
+    # LA = QLines.LineArrangement(lines)
+    # corners = LA.extremePoints()
+    # LA.boundingBox(corners[0], corners[1], corners[2], corners[3])
+    # LA.lineArrangement()
+    l1 = QLines.Line((0, 1), (4, 9))
+    l2 = QLines.Line((3, 0), (0, 12))
+    LA = QLines.LineArrangement([l1, l2])
+    LA.boundingBox(0, 10, 10, 0)
+    LA.addLine(l1)
+    LA.addLine(l2)
+    expected_vertices = [(0, 10), (Fraction(1, 2), 10), (Fraction(9, 2), 10), (10, 10), (10, 0), (3, 0), (0, 0), (0, 1)]
+    # result_vertices = self.perimeterTraversal(LA, (0, 10))
+    # for i, expected in enumerate(expected_vertices):
+    #         self.assertEqual(expected, result_vertices[i], f"Error in line arrangement, index {i}.\nExpected: {expected_vertices}\nResult: {result_vertices}")
 
 
 if __name__ == "__main__":
