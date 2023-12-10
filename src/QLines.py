@@ -130,8 +130,8 @@ class LineArrangement:
         else:
             # create a new vertex and split the edge
             v1 = Vertex(p1, e1)
-            edgeSplit1 = HalfEdge(e1.origin(), v1, None, e1.incFace(), e1, e1.prev())
-            edgeSplit2 = HalfEdge(v1, e1.origin(), edgeSplit1, e1.twin().incFace(), e1.twin().next(), e1.twin())
+            edgeSplit1 = HalfEdge(e1.origin(), v1, None, e1.boundedFace(), e1, e1.prev())
+            edgeSplit2 = HalfEdge(v1, e1.origin(), edgeSplit1, e1.twin().boundedFace(), e1.twin().next(), e1.twin())
             edgeSplit1.setTwin(edgeSplit2)
             edgeSplit1.prev().setNext(edgeSplit1)
             edgeSplit2.next().setPrev(edgeSplit2)
@@ -144,7 +144,7 @@ class LineArrangement:
 
 
         # while e1 is on a bounded face
-        while (e1.boundedFace() is None):
+        while (e1.boundedFace()):
             # print(f"Bounded Face: \ne1 = {e1.origin().coord()}->{e1.dest().coord()}\ne1.twin() = {e1.twin().origin().coord()}->{e1.twin().dest().coord()}")
             e1 = self.faceSplit(e1, v1, line)
             v1 = e1.origin()
