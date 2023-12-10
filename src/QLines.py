@@ -152,8 +152,9 @@ class LineArrangement:
 
 
 
+
     def faceSplit(self, e1: HalfEdge, v1: Vertex, line: Line) -> HalfEdge:
-         # traverse through edges of inc face until one of them intersects the line
+        # traverse through edges of inc face until one of them intersects the line
         e2 = e1
         e2 = e2.next()  # otherwise the origin of e2 will intersect
         p2 = self.lineEdgeInt(line, e2)
@@ -185,40 +186,88 @@ class LineArrangement:
             while (slope != slopeTest):
                 nextEdge = nextEdge.twin().next()
                 slopeTest = Line(nextEdge.dest().coord(), nextEdge.origin().coord()).slope()
+                print("slope")
+
 
             return nextEdge
 
         else:
             # create new vertex and split e2
-            v2 = Vertex(p2, None)  # set new edge after
-            newFace = Face(None, None)
-            # create edge between v1 and v2
-            newEdge1 = HalfEdge(v2, v1, None, e2.incFace(), e1, e2)
-            newEdge2 = HalfEdge(v1, v2, newEdge1, newFace, None, e1.prev())  # set next later
+            # v2 = Vertex(p2, None)  # set new edge after
+            # newFace = Face(None, None)
+            # # create edge between v1 and v2
+            # newEdge1 = HalfEdge(v2, v1, None, e2.incFace(), e1, e2)
+            # newEdge2 = HalfEdge(v1, v2, newEdge1, newFace, None, e1.prev())  # set next later
+            # newEdge1.setTwin(newEdge2)
+
+            # # print(f"\ne1.twin(): {e1.twin().toSring()}, {e1.twin()}")
+            # # print(f"e1.twin.next(): {e1.twin().next().toSring(), {e1.twin().next()}}")
+
+            # # split edge e2 by creating new hald edges and updating references
+            # newEdge3 = HalfEdge(v2, e2.dest(), None, newFace, e2.next(), e2)
+            # e2.next().setPrev(newEdge3)
+            # newEdge4 = HalfEdge(e2.dest(), v2, newEdge3, e2.twin().incFace(), e2.twin(), e2.twin().prev())
+            # newEdge4.prev().setNext(newEdge4)
+            # newEdge3.setTwin(newEdge4)
+
+            # # print(f"\ne1.twin(): {e1.twin().toSring()}, {e1.twin()}")
+            # # print(f"e1.twin.next(): {e1.twin().next().toSring(), {e1.twin().next()}}")
+            # e1.prev().setNext(newEdge2)
+            # e2.setNext(newEdge1)
+            # e2.setDest(v2)
+            # e2.twin().setPrev(newEdge4)
+            # e2.twin().setOrigin(v2)
+            # newEdge2.setNext(newEdge3)
+
+
+            # print(f"\ne1.twin(): {e1.twin().toSring()}, {e1.twin()}")
+            # print(f"e1.twin.next(): {e1.twin().next().toSring(), {e1.twin().next()}}")
+
+            # Construct v2 and new edges
+            v2 = Vertex(p2, None)
+            newEdge1 = HalfEdge(v2, v1, None, None, None, None)
+            newEdge2 = HalfEdge(v1, v2, newEdge1, None, None, None)
             newEdge1.setTwin(newEdge2)
 
-            # print(f"\ne1.twin(): {e1.twin().toSring()}, {e1.twin()}")
-            # print(f"e1.twin.next(): {e1.twin().next().toSring(), {e1.twin().next()}}")
-
-            # split edge e2 by creating new hald edges and updating references
-            newEdge3 = HalfEdge(v2, e2.dest(), None, newFace, e2.next(), e2)
-            e2.next().setPrev(newEdge3)
-            newEdge4 = HalfEdge(e2.dest(), v2, newEdge3, e2.twin().incFace(), e2.twin(), e2.twin().prev())
-            newEdge4.prev().setNext(newEdge4)
+            newEdge3 = HalfEdge(v2, e1.dest(), None, None, None, None)
+            newEdge4 = HalfEdge(e2.dest(), v2, newEdge3, None, None, None)
             newEdge3.setTwin(newEdge4)
 
-            # print(f"\ne1.twin(): {e1.twin().toSring()}, {e1.twin()}")
-            # print(f"e1.twin.next(): {e1.twin().next().toSring(), {e1.twin().next()}}")
-            e1.prev().setNext(newEdge2)
-            e2.setNext(newEdge1)
-            e2.setDest(v2)
-            e2.twin().setPrev(newEdge4)
-            e2.twin().setOrigin(v2)
+            # Set the previous and next values for the new edges
+            newEdge1.setNext(e1)
+            newEdge1.setPrev(e2)
+
             newEdge2.setNext(newEdge3)
+            newEdge2.setPrev(e1.prev())
 
+            newEdge3.setNext(e2.next())
+            newEdge3.setPrev(newEdge2)
 
-            # print(f"\ne1.twin(): {e1.twin().toSring()}, {e1.twin()}")
-            # print(f"e1.twin.next(): {e1.twin().next().toSring(), {e1.twin().next()}}")
+            newEdge4.setNext(e2.twin())
+            newEdge4.setPrev(e2.twin().prev())
+
+            # Set the previous and next other affected edges
+            e1.prev().setNext(newEdge2)
+            e2.next().setPrev(newEdge3)
+            e2.twin().prev().setNext(newEdge4)
+
+            # set previous and next for e1 and e2 and their twins
+            e2.setNext(newEdge1)
+            e1.setPrev(newEdge1)
+            e2.twin().setPrev(newEdge4)
+
+            # fix dest origins of e2 and e2.twin
+            e2.setDest(v2)
+            e2.twin().setOrigin(v2)
+            v2.setIncEdge(newEdge3)
+
+            # create new face and update
+            f1 = e1.incFace()
+            f2 = Face(newEdge4, None)
+            newEdge1.setIncFace(f1)
+            newEdge2.setIncFace(f2)
+            newEdge3.setIncFace(f2)
+            newEdge4.setIncFace(e2.twin().incFace())
 
             return e2.twin()
 
