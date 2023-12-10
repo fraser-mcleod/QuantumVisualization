@@ -65,7 +65,7 @@ class TestLine(unittest.TestCase):
               self.assertEqual((result_origin, result_dest), (expected_origin[i], expected_dest[i]), f"Error in leftmost edge with line {i+1}. \nExpected: {expected_origin[i]}->{expected_dest[i]}.\nResult: {result_origin}->{result_dest}")
 
 
-    def test_addLine_1(self):
+    def test_addLine__perimeter_1(self):
         line = Line((0, 1), (4, 9))
         LA = LineArrangement([line])
         LA.boundingBox(0, 10, 10, 0)
@@ -75,7 +75,7 @@ class TestLine(unittest.TestCase):
         for i, expected in enumerate(expected_vertices):
              self.assertEqual(expected, result_vertices[i], f"Error in line arrangement, index {i}.\nExpected: {expected_vertices}\nResult: {result_vertices}")
 
-    def test_addLine_2(self):
+    def test_addLine_perimeter_2(self):
         line = Line((3, 0), (0, 12))
         LA = LineArrangement([line])
         LA.boundingBox(0, 10, 10, 0)
@@ -85,7 +85,7 @@ class TestLine(unittest.TestCase):
         for i, expected in enumerate(expected_vertices):
              self.assertEqual(expected, result_vertices[i], f"Error in line arrangement, index {i}.\nExpected: {expected_vertices}\nResult: {result_vertices}")
 
-    def test_addLine_3(self):
+    def test_addLine_perimeter_3(self):
         line = Line((16, 0), (0, 8))
         LA = LineArrangement([line])
         LA.boundingBox(0, 10, 10, 0)
@@ -96,7 +96,8 @@ class TestLine(unittest.TestCase):
              self.assertEqual(expected, result_vertices[i], f"Error in line arrangement, index {i}.\nExpected: {expected_vertices}\nResult: {result_vertices}")
 
 
-    def test_addLine_4(self):
+
+    def test_addLine_perimeter_4(self):
         l1 = Line((0, 1), (4, 9))
         l2 = Line((3, 0), (0, 12))
         LA = LineArrangement([l1, l2])
@@ -107,6 +108,18 @@ class TestLine(unittest.TestCase):
         result_vertices = self.perimeterTraversal(LA, (0, 10))
         for i, expected in enumerate(expected_vertices):
              self.assertEqual(expected, result_vertices[i], f"Error in line arrangement, index {i}.\nExpected: {expected_vertices}\nResult: {result_vertices}")
+
+    def test_addLine__interior_1(self):
+        line = Line((0, 1), (4, 9))
+        LA = LineArrangement([line])
+        LA.boundingBox(0, 10, 10, 0)
+        LA.addLine(line)
+        expected_vertices = [(0, 1), (Fraction(9, 2), 10)]
+        result_vertices = self.lineTraversal(LA, line)
+        for i, expected in enumerate(expected_vertices):
+             self.assertEqual(expected, result_vertices[i], f"Error in line arrangement, index {i}.\nExpected: {expected_vertices}\nResult: {result_vertices}")
+
+
 
     def perimeterTraversal(self, LA: LineArrangement, start: tuple):
         """Output a list of visited coordinates on the outside face."""
@@ -124,10 +137,33 @@ class TestLine(unittest.TestCase):
         return edgeList
 
 
-    def lineTraversal(self, LA: LineArrangement, line: Line):
-         """Output a list of vertices on the given line in the line arrangement"""
-         edge = LA.leftMostedge(line).twin()  # twin so we get interior egde
-         edgeList = [edge.origin().coord()]
+    def lineTraversal(self, LA: LineArrangement, line: Line) -> list[tuple]:
+        """Output a list of vertices on the given line in the line arrangement"""
+        edge = LA.leftMostedge(line).twin()  # twin so we get interior egde
+        vertexList = [edge.origin().coord()]
+        # while edge is on a bounded face:
+        edge = edge.next()
+        while edge.incFace().outComp() is None:
+            # find next edge that intersects line
+            intersection = LA.lineEdgeInt(line, edge)
+            while intersection is None:
+                edge = edge.next()
+                intersection = LA.lineEdgeInt(line, edge)
+
+            vertexList.append(intersection)
+            # find the next edge
+            edge = edge.next().twin().next()
+            slope = Line(edge.dest().coord(), edge.origin().coord()).slope()
+            edge = edge.twin().next()
+            slopeTest = Line(edge.dest().coord(), edge.origin().coord()).slope()
+            while (slope != slopeTest):
+                edge = edge.twin().next()
+                slopeTest = Line(edge.dest().coord(), edge.origin().coord()).slope()
+
+        return vertexList
+
+
+
 
 
 
