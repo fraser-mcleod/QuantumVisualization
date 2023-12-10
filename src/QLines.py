@@ -81,7 +81,6 @@ class LineArrangement:
         boundedFace.setOutComp(e1)
         unBoundedFace.setInComp(e2)
         # self.unBoundedFace = unBoundedFace
-        self.outsideEdge = e2
 
         # bottom edge
         e3 = HalfEdge(v4, v3, None, unBoundedFace, None, e1)
@@ -108,6 +107,7 @@ class LineArrangement:
         e7.setTwin(e8)
         e2.setNext(e8)
         e6.setPrev(e8)
+        self.outsideEdge = e8
 
         # add edges and faces to record
         self.vertexRecord.extend([v1, v2, v3, v4])
