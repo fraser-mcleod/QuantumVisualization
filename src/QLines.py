@@ -162,6 +162,8 @@ class LineArrangement:
             e2 = e2.next()
             p2 = self.lineEdgeInt(line, e2)
 
+
+
         # print(f"e2: {e2.toSring()}\ne2.twin(): {e2.twin().toSring()}")
         # print(f"e2.twin().prev(): {e2.twin().prev().toSring()}")
         # If p2 is a vertex already:
@@ -186,43 +188,11 @@ class LineArrangement:
             while (slope != slopeTest):
                 nextEdge = nextEdge.twin().next()
                 slopeTest = Line(nextEdge.dest().coord(), nextEdge.origin().coord()).slope()
-                print("slope")
 
 
             return nextEdge
 
         else:
-            # create new vertex and split e2
-            # v2 = Vertex(p2, None)  # set new edge after
-            # newFace = Face(None, None)
-            # # create edge between v1 and v2
-            # newEdge1 = HalfEdge(v2, v1, None, e2.incFace(), e1, e2)
-            # newEdge2 = HalfEdge(v1, v2, newEdge1, newFace, None, e1.prev())  # set next later
-            # newEdge1.setTwin(newEdge2)
-
-            # # print(f"\ne1.twin(): {e1.twin().toSring()}, {e1.twin()}")
-            # # print(f"e1.twin.next(): {e1.twin().next().toSring(), {e1.twin().next()}}")
-
-            # # split edge e2 by creating new hald edges and updating references
-            # newEdge3 = HalfEdge(v2, e2.dest(), None, newFace, e2.next(), e2)
-            # e2.next().setPrev(newEdge3)
-            # newEdge4 = HalfEdge(e2.dest(), v2, newEdge3, e2.twin().incFace(), e2.twin(), e2.twin().prev())
-            # newEdge4.prev().setNext(newEdge4)
-            # newEdge3.setTwin(newEdge4)
-
-            # # print(f"\ne1.twin(): {e1.twin().toSring()}, {e1.twin()}")
-            # # print(f"e1.twin.next(): {e1.twin().next().toSring(), {e1.twin().next()}}")
-            # e1.prev().setNext(newEdge2)
-            # e2.setNext(newEdge1)
-            # e2.setDest(v2)
-            # e2.twin().setPrev(newEdge4)
-            # e2.twin().setOrigin(v2)
-            # newEdge2.setNext(newEdge3)
-
-
-            # print(f"\ne1.twin(): {e1.twin().toSring()}, {e1.twin()}")
-            # print(f"e1.twin.next(): {e1.twin().next().toSring(), {e1.twin().next()}}")
-
             # Construct v2 and new edges
             v2 = Vertex(p2, None)
             newEdge1 = HalfEdge(v2, v1, None, None, None, None)
@@ -273,127 +243,6 @@ class LineArrangement:
 
 
 
-
-
-
-
-
-    # def lineArrangement(self):
-    #     """Compute the arrangement of lines on the plane and store in DCEL
-
-    #     Args:
-    #         lines: a list of lines represented by a 4-tuple: (x1, y1, x2, y2) of two points on the line
-    #     """
-    #     assert self.bbVertex is not None  # make sure bounding box has been created
-
-    #     # TODO add vertices and edges to record
-    #     for i, line in enumerate(self.lines):
-    #         # find the edge to begin at
-    #         e1 = self.leftMostedge(line).twin()
-
-
-    #         # find point of intersection
-    #         p1 = self.lineEdgeInt(line, e1)
-    #         print("p1: ", p1)
-    #         # if this point is already a vertex
-    #         if (p1 == e1.origin().coord()):
-    #             e1.origin().degree += 1  # may need to change this after
-    #         else:
-    #             # split edge e1 and create new vertex
-    #             v = Vertex(p1, e1)
-    #             newEdge1 = HalfEdge(e1.origin(), v, None, e1.incFace(), e1, e1.prev())
-    #             newEdge2 = HalfEdge(v, e1.origin(), newEdge1, e1.twin().incFace(), e1.twin().next(), e1.twin())
-    #             newEdge1.setTwin(newEdge2)
-    #             e1.setOrigin(v)
-    #             e1.setPrev(newEdge1)
-    #             e1.twin().setDest(v)
-    #             e1.twin().setNext(newEdge2)
-
-
-    #         # while the face of e1 is bounded
-    #         print("e1.origin: ", e1.origin().coord(), "e1 dest: ", e1.dest().coord())
-    #         print(e1.incFace().outComp())
-    #         print(e1.twin().incFace().outComp())
-    #         while (e1.incFace().outComp() is not None):
-    #             print("test")
-    #             # set the intersection point, face, and second intersection point
-    #             p1 = e1.origin().coord()
-    #             f1 = e1.incFace()
-    #             e2 = e1.next()
-    #             # find the next edge that intersects l
-    #             while (self.lineEdgeInt(line, e2) is None):
-    #                 e2 = e2.next()
-    #             p2 = self.lineEdgeInt(line, e2)
-    #             print(p2)
-    #             # e1 will be the first edge of the next face
-    #             e1 = self.faceSplit(self, e1, e2, f1, p1, p2)
-
-
-
-
-
-
-    # def faceSplit(self, e1: HalfEdge, e2: HalfEdge, f1: Face, p1: tuple, p2, tuple) -> HalfEdge:
-    #     # In the first case, assume p1 is an existing vertex and p2 is a new vertex
-
-    #     # We begin by p1, e1, and f. We walk counter-clockwise around f until we encounter
-    #     # an edge that intersects line. Then set this point as p2 and this edge as e2.
-    #     # We then need to create new vertices v1 nad v2, split e1 and e2 and update f.
-
-    #     # Create new vertices, faces, and edges between the vertices
-
-    #     # TODO add vertices and edges to record
-    #     v1 = Vertex(p1, None)
-    #     if p2 != e2.dest().coord():
-    #         v2 = Vertex(p2, None)
-    #     else:
-    #         v2 = e2.dest()
-
-    #     newEdge1 = HalfEdge(v2, v1, None, f1, e1, None)  # Set twin and prev later
-    #     newEdge2 = HalfEdge(v1, v2, newEdge1, None, None, e1.prev())  # Set face and next later
-    #     newEdge1.setTwin(newEdge2)
-    #     f1.setOutComp(newEdge1)
-    #     f2 = Face(newEdge2, None)
-    #     newEdge2.setIncFace(f2)
-
-    #     if p2 != e2.dest.coord():
-    #         # split e2 and update accordingly
-    #         newEdge3 = HalfEdge(v2, e2.dest(), None, f2, e2.next(), newEdge2)  # set twin shortly
-    #         newEdge4 = HalfEdge(e2.dest(), v2, newEdge3, e2.twin().incFace(), e2.twin(), e2.twin().prev())
-    #         newEdge3.setTwin(newEdge4)
-
-    #         e2.setDest(v2)
-    #         e2.setNext(newEdge1)
-    #         e2.twin().setOrigin(v2)
-    #         e2.twin().setPrev(newEdge4)
-
-    #         newEdge1.setPrev(e2)
-    #         newEdge2.setNext(newEdge3)
-
-    #         return e2.twin()
-    #     else:
-    #         e2.next().setPrev(newEdge2)
-    #         newEdge2.setNext(e2.next())
-    #         newEdge1.setPrev(e2)
-    #         e2.setNext(newEdge1)
-
-    #         # find the next face intersected by l
-    #         # assume unique lines
-    #         e2 = e2.next()
-    #         slope1 = Fraction(e2.origin().coord[0]-e2.dest().coord[0], e2.origin().coord[1]-e2.dest().coord[1])
-    #         e2 = e2.twin()
-    #         e2 = e2.next()
-    #         slope2 = Fraction(e2.origin().coord[0]-e2.dest().coord[0], e2.origin().coord[1]-e2.dest().coord[1])
-
-    #         # walk around vertex until we find a line with equivalent slope, at which point we can return
-    #         while(slope1 != slope2):
-    #             e2 = e2.twin()
-    #             e2 = e2.next()
-    #             slope2 = Fraction(e2.origin().coord[0]-e2.dest().coord[0], e2.origin().coord[1]-e2.dest().coord[1])
-
-    #         return e2
-
-
     def lineEdgeInt(self, line: Line, edge: HalfEdge) -> tuple:
         """Determine if the given line and edge intersect"""
         l2 = Line(edge.origin().coord(), edge.dest().coord())
@@ -434,8 +283,8 @@ class LineArrangement:
             if edge.origin().coord() == startCoord:
                 break
 
-        print("\nLME: ", leftMostEdge.toSring())
-        print("PREV: ", leftMostEdge.prev().toSring())
+        # print("\nLME: ", leftMostEdge.toSring())
+        # print("PREV: ", leftMostEdge.prev().toSring())
         # if the intersection is on the origin of a edge, return the previous edge instead
         if leftMostEdge.origin().coord() == leftMostIntersection:
             leftMostEdge = leftMostEdge.prev()
