@@ -67,6 +67,21 @@ class TestLine(unittest.TestCase):
 
 
 
+    def perimeterTraversal(self, LA: LineArrangement):
+        """Output a list of visited coordinates on the outside face."""
+        edge = LA.outsideEdge
+        edgeList = [edge.origin().coord()]
+        edge = edge.next()
+        while edge.origin().coord() != edgeList[0]:
+            edgeList.append(edge.origin().coord())
+            edge = edge.next()
+
+        return edgeList
+
+    def lineTraversal(self, LA: LineArrangement, line: Line):
+         """Output a list of vertices on the given line in the line arrangement"""
+
+
 
 
 
