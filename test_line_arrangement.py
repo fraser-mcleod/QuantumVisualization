@@ -42,6 +42,14 @@ class TestLine(unittest.TestCase):
          result = self.boundingBoxSetUp(0, 24, 125, -17)
          self.assertEqual(None, result, result)
 
+    def test_edgeInt_1(self):
+         LA = LineArrangement(None)
+         edge = HalfEdge(Vertex((Fraction(-1, 3), 0), None), Vertex((3, 10), None), None, None, None, None)
+         edgeLineInt = [None, (Fraction(6, 7), Fraction(25, 7)), (Fraction(36, 13), Fraction(121, 13)), (Fraction(4, 3), 5), None, None, (Fraction(6, 5), Fraction(23, 5)), None, None]
+         for i, line in enumerate(self.lineSet3):
+              self.assertEqual(edgeLineInt[i], LA.lineEdgeInt(line, edge), f"Error: line edge intercept, line #{i+1}. \nExpected: {edgeLineInt[i]}, but got: {LA.lineEdgeInt(line, edge)}")
+
+
 
 
     def boundingBoxSetUp(self, left, right, top, bottom):
