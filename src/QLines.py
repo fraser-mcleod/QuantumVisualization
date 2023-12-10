@@ -68,31 +68,30 @@ class LineArrangement:
 
 
         # create two face objects - one bounded one unbounded
-        boundedFace = Face(None, None)
-        unBoundedFace = Face(None, None)
+        # boundedFace = Face(None, None)
+        # unBoundedFace = Face(None, None)
 
 
         # add both half edges moving around counter-clockwise
-        e1 = HalfEdge(v1, v4, None, unBoundedFace, None, None)
-        e2 = HalfEdge(v4, v1, e1, boundedFace, None, None)
+        e1 = HalfEdge(v1, v4, None, True, None, None)
+        e2 = HalfEdge(v4, v1, e1, False, None, None)
         v1.setIncEdge(e1)
         v4.setIncEdge(e2)
         e1.setTwin(e2)
-        boundedFace.setOutComp(e1)
-        unBoundedFace.setInComp(e2)
+
         # self.unBoundedFace = unBoundedFace
 
         # bottom edge
-        e3 = HalfEdge(v4, v3, None, unBoundedFace, None, e1)
+        e3 = HalfEdge(v4, v3, None, True, None, e1)
         e1.setNext(e3)
-        e4 = HalfEdge(v3, v4, e3, boundedFace, e2, None)
+        e4 = HalfEdge(v3, v4, e3, False, e2, None)
         e3.setTwin(e4)
         e2.setPrev(e4)
 
         # right edge
-        e5 = HalfEdge(v3, v2, None, unBoundedFace, None, e3)
+        e5 = HalfEdge(v3, v2, None, True, None, e3)
         e3.setNext(e5)
-        e6 = HalfEdge(v2, v3, e5, boundedFace, e4, None)
+        e6 = HalfEdge(v2, v3, e5, False, e4, None)
         v3.setIncEdge(e5)
         v2.setIncEdge(e6)
         e5.setTwin(e6)
@@ -100,10 +99,10 @@ class LineArrangement:
 
         # top edge
         # e7 = HalfEdge(v2, v1, None, boundedFace, e1, e5)
-        e7 = HalfEdge(v2, v1, None, unBoundedFace, e1, e5)
+        e7 = HalfEdge(v2, v1, None, True, e1, e5)
         e5.setNext(e7)
         e1.setPrev(e7)
-        e8 = HalfEdge(v1, v2, e7, boundedFace, e6, e2)
+        e8 = HalfEdge(v1, v2, e7, False, e6, e2)
         e7.setTwin(e8)
         e2.setNext(e8)
         e6.setPrev(e8)
@@ -111,14 +110,15 @@ class LineArrangement:
 
         # add edges and faces to record
         self.vertexRecord.extend([v1, v2, v3, v4])
-        self.faceRecord.extend([boundedFace, unBoundedFace])
+        # self.faceRecord.extend([boundedFace, unBoundedFace])
         self.edgeRecord.extend([e1, e2, e3, e4, e5, e6, e7, e8])
 
 
-    def addLine(self, line):
+    def addLine(self, line: Line):
         """Add line to the existing arrangement"""
+        print(f"Add line: {line.toString()}")
         e1 = self.leftMostedge(line).twin()  # twin so that it is interior edge
-
+        print(f"LME: {e1.toString()}")
         # find intersection between line and edge, then determine if we need to create a new vertex
         p1 = self.lineEdgeInt(line, e1)
         if p1 == e1.dest().coord():
@@ -144,7 +144,7 @@ class LineArrangement:
 
 
         # while e1 is on a bounded face
-        while (e1.incFace().outComp() is None):
+        while (e1.boundedFace() is None):
             # print(f"Bounded Face: \ne1 = {e1.origin().coord()}->{e1.dest().coord()}\ne1.twin() = {e1.twin().origin().coord()}->{e1.twin().dest().coord()}")
             e1 = self.faceSplit(e1, v1, line)
             v1 = e1.origin()
@@ -162,6 +162,9 @@ class LineArrangement:
             e2 = e2.next()
             p2 = self.lineEdgeInt(line, e2)
 
+        print(f"Line: {line.toString()}")
+        print(f"e1: {e1.toString()}")
+        print(f"e2: {e2.toString()}")
 
 
         # print(f"e2: {e2.toSring()}\ne2.twin(): {e2.twin().toSring()}")
@@ -170,10 +173,10 @@ class LineArrangement:
         if p2 == e2.dest().coord():
             # create new edges from p1 to p2, create anew face, and update references
             v2 = e2.dest()
-            newFace = Face(None, None)  # FIX LATER
-            newEdge1 = HalfEdge(v2, v1, None, e2.incFace(), e1, e2)
-            newEdge2 = HalfEdge(v1, v2, newEdge1, newFace, e2.next(), e1.prev())
-            newFace.setOutComp(newEdge2)
+            # newFace = Face(None, None)  # FIX LATER
+            newEdge1 = HalfEdge(v2, v1, None, True, e1, e2)
+            newEdge2 = HalfEdge(v1, v2, newEdge1, True, e2.next(), e1.prev())
+            # newFace.setOutComp(newEdge2)
             newEdge1.setTwin(newEdge2)
             e2.next().setPrev(newEdge2)
             e2.setNext(newEdge1)
@@ -195,12 +198,12 @@ class LineArrangement:
         else:
             # Construct v2 and new edges
             v2 = Vertex(p2, None)
-            newEdge1 = HalfEdge(v2, v1, None, None, None, None)
-            newEdge2 = HalfEdge(v1, v2, newEdge1, None, None, None)
+            newEdge1 = HalfEdge(v2, v1, None, True, None, None)
+            newEdge2 = HalfEdge(v1, v2, newEdge1, True, None, None)
             newEdge1.setTwin(newEdge2)
 
-            newEdge3 = HalfEdge(v2, e1.dest(), None, None, None, None)
-            newEdge4 = HalfEdge(e2.dest(), v2, newEdge3, None, None, None)
+            newEdge3 = HalfEdge(v2, e1.dest(), None, True, None, None)
+            newEdge4 = HalfEdge(e2.dest(), v2, newEdge3, e2.twin().boundedFace(), None, None)
             newEdge3.setTwin(newEdge4)
 
             # Set the previous and next values for the new edges
@@ -232,12 +235,12 @@ class LineArrangement:
             v2.setIncEdge(newEdge3)
 
             # create new face and update
-            f1 = e1.incFace()
-            f2 = Face(newEdge4, None)
-            newEdge1.setIncFace(f1)
-            newEdge2.setIncFace(f2)
-            newEdge3.setIncFace(f2)
-            newEdge4.setIncFace(e2.twin().incFace())
+            # f1 = e1.incFace()
+            # f2 = Face(newEdge4, None)
+            # newEdge1.setIncFace(f1)
+            # newEdge2.setIncFace(f2)
+            # newEdge3.setIncFace(f2)
+            # newEdge4.setIncFace(e2.twin().incFace())
 
             return e2.twin()
 
@@ -325,29 +328,29 @@ class LineArrangement:
 
 
 
-class Face:
-    """Simple face class
+# class Face:
+#     """Simple face class
 
-    Attributes:
-        outComp: reference to half edge on the outer boundary of f, null if unbounded
-        inComp: reference to a half edge on the exterior of a face contained within an unbounded face
-    """
+#     Attributes:
+#         outComp: reference to half edge on the outer boundary of f, null if unbounded
+#         inComp: reference to a half edge on the exterior of a face contained within an unbounded face
+#     """
 
-    def __init__(self, outComp: HalfEdge, inComp: HalfEdge):
-        self._outComp = outComp
-        self._inComp = inComp
+#     def __init__(self, outComp: HalfEdge, inComp: HalfEdge):
+#         self._outComp = outComp
+#         self._inComp = inComp
 
-    def outComp(self) -> HalfEdge:
-        return self._outComp
+#     def outComp(self) -> HalfEdge:
+#         return self._outComp
 
-    def setOutComp(self, newOutComp):
-        self._outComp = newOutComp
+#     def setOutComp(self, newOutComp):
+#         self._outComp = newOutComp
 
-    def inComp(self) -> HalfEdge:
-        return self._inComp
+#     def inComp(self) -> HalfEdge:
+#         return self._inComp
 
-    def setInComp(self, newInComp):
-        self._inComp = newInComp
+#     def setInComp(self, newInComp):
+#         self._inComp = newInComp
 
 class Vertex:
     """Simple Vertex class
@@ -399,11 +402,11 @@ class HalfEdge:
         prev: the prev edge along the face
     """
 
-    def __init__(self, origin, dest, twin, incFace, next, prev):
+    def __init__(self, origin, dest, twin, boundedFace: bool, next, prev):
         self._origin = origin
         self._dest = dest
         self._twin = twin
-        self._incFace = incFace
+        self._BoundedFace = boundedFace
         self._next = next
         self._prev = prev
 
@@ -438,14 +441,8 @@ class HalfEdge:
         self._twin = new_twin
 
 
-    def incFace(self) -> Face:
-        """Getter method for 'incFace'."""
-        return self._incFace
-
-
-    def setIncFace(self, new_incFace: Face):
-        """Setter method for 'incFace'."""
-        self._incFace = new_incFace
+    def boundedFace(self) -> bool:
+        return self._BoundedFace
 
 
     def next(self) -> HalfEdge:
@@ -467,7 +464,7 @@ class HalfEdge:
         """Setter method for 'prev'."""
         self._prev = new_prev
 
-    def toSring(self)->str:
+    def toString(self)->str:
         return f"{self.origin().coord()}->{self.dest().coord()}"
 
 
