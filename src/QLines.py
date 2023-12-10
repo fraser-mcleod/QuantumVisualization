@@ -133,12 +133,14 @@ class LineArrangement:
             edgeSplit1 = HalfEdge(e1.origin(), v1, None, e1.incFace(), e1, e1.prev())
             edgeSplit2 = HalfEdge(v1, e1.origin(), edgeSplit1, e1.twin().incFace(), e1.twin().next(), e1.twin())
             edgeSplit1.setTwin(edgeSplit2)
+            edgeSplit1.prev().setNext(edgeSplit1)
+            edgeSplit2.next().setPrev(edgeSplit2)
+
             e1.setPrev(edgeSplit1)
             e1.setOrigin(v1)
             e1.twin().setDest(v1)
-            e1.twin().next().setPrev(edgeSplit2)
             e1.twin().setNext(edgeSplit2)
-            e1.twin().next().setPrev(edgeSplit2)
+
 
 
         # while e1 is on a bounded face
@@ -186,8 +188,6 @@ class LineArrangement:
 
             return nextEdge
 
-
-
         else:
             # create new vertex and split e2
             v2 = Vertex(p2, None)  # set new edge after
@@ -209,7 +209,7 @@ class LineArrangement:
 
             # print(f"\ne1.twin(): {e1.twin().toSring()}, {e1.twin()}")
             # print(f"e1.twin.next(): {e1.twin().next().toSring(), {e1.twin().next()}}")
-
+            e1.prev().setNext(newEdge2)
             e2.setNext(newEdge1)
             e2.setDest(v2)
             e2.twin().setPrev(newEdge4)
@@ -374,10 +374,10 @@ class LineArrangement:
             # print(intersection)
             if intersection is not None:
                 if leftMostIntersection is None:
-                    leftMostIntersection = intersection[0]
+                    leftMostIntersection = intersection
                     leftMostEdge = edge
-                elif intersection[0] <= leftMostIntersection:
-                    leftMostIntersection = intersection[0]
+                elif intersection[0] <= leftMostIntersection[0]:
+                    leftMostIntersection = intersection
                     leftMostEdge = edge
 
             # move onto the next edge
@@ -385,11 +385,14 @@ class LineArrangement:
             if edge.origin().coord() == startCoord:
                 break
 
-        # if we are on a vertex return edge whose destination is vertex
-        if edge.origin().coord() == leftMostIntersection:
-            edge = edge.prev()
+        print("\nLME: ", leftMostEdge.toSring())
+        print("PREV: ", leftMostEdge.prev().toSring())
+        # if the intersection is on the origin of a edge, return the previous edge instead
+        if leftMostEdge.origin().coord() == leftMostIntersection:
+            leftMostEdge = leftMostEdge.prev()
 
-        return edge
+
+        return leftMostEdge
 
 
 
