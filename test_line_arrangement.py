@@ -65,7 +65,7 @@ class TestLine(unittest.TestCase):
               self.assertEqual((result_origin, result_dest), (expected_origin[i], expected_dest[i]), f"Error in leftmost edge with line {i+1}. \nExpected: {expected_origin[i]}->{expected_dest[i]}.\nResult: {result_origin}->{result_dest}")
 
 
-    def test_line_arrangement_1(self):
+    def test_addLine_1(self):
         line = Line((0, 1), (4, 9))
         LA = LineArrangement([line])
         LA.boundingBox(0, 10, 10, 0)
@@ -75,6 +75,38 @@ class TestLine(unittest.TestCase):
         for i, expected in enumerate(expected_vertices):
              self.assertEqual(expected, result_vertices[i], f"Error in line arrangement, index {i}.\nExpected: {expected_vertices}\nResult: {result_vertices}")
 
+    def test_addLine_2(self):
+        line = Line((3, 0), (0, 12))
+        LA = LineArrangement([line])
+        LA.boundingBox(0, 10, 10, 0)
+        LA.addLine(line)
+        expected_vertices = [(0, 10), (Fraction(1, 2), 10), (10, 10), (10, 0), (3, 0),(0, 0)]
+        result_vertices = self.perimeterTraversal(LA, (0, 10))
+        for i, expected in enumerate(expected_vertices):
+             self.assertEqual(expected, result_vertices[i], f"Error in line arrangement, index {i}.\nExpected: {expected_vertices}\nResult: {result_vertices}")
+
+    def test_addLine_3(self):
+        line = Line((16, 0), (0, 8))
+        LA = LineArrangement([line])
+        LA.boundingBox(0, 10, 10, 0)
+        LA.addLine(line)
+        expected_vertices = [(0, 10), (10, 10), (10, 3), (10, 0), (0, 0), (0, 8)]
+        result_vertices = self.perimeterTraversal(LA, (0, 10))
+        for i, expected in enumerate(expected_vertices):
+             self.assertEqual(expected, result_vertices[i], f"Error in line arrangement, index {i}.\nExpected: {expected_vertices}\nResult: {result_vertices}")
+
+
+    def test_addLine_4(self):
+        l1 = Line((0, 1), (4, 9))
+        l2 = Line((3, 0), (0, 12))
+        LA = LineArrangement([l1, l2])
+        LA.boundingBox(0, 10, 10, 0)
+        LA.addLine(l1)
+        LA.addLine(l2)
+        expected_vertices = [(0, 10), (Fraction(1, 2), 10), (Fraction(9, 2), 10), (10, 10), (10, 0), (3, 0), (0, 0), (0, 1)]
+        result_vertices = self.perimeterTraversal(LA, (0, 10))
+        for i, expected in enumerate(expected_vertices):
+             self.assertEqual(expected, result_vertices[i], f"Error in line arrangement, index {i}.\nExpected: {expected_vertices}\nResult: {result_vertices}")
 
     def perimeterTraversal(self, LA: LineArrangement, start: tuple):
         """Output a list of visited coordinates on the outside face."""
