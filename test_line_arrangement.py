@@ -29,3 +29,48 @@ class TestLine(unittest.TestCase):
     def test_ExtremePoints_3(self):
         test = LineArrangement(self.lineSet3)
         self.assertEqual(test.extremePoints(), (0, 24, 125, -17))
+
+    def test_boundingBox_1(self):
+         result = self.boundingBoxSetUp(Fraction(5, 9), 13, 125, Fraction(-13, 3))
+         self.assertEqual(None, result, result)
+
+    def test_boundingBox_2(self):
+         result = self.boundingBoxSetUp(Fraction(5, 3), Fraction(24, 1), Fraction(16, 1), Fraction(10, 9))
+         self.assertEqual(None, result, result)
+
+    def test_boundingBox_3(self):
+         result = self.boundingBoxSetUp(0, 24, 125, -17)
+         self.assertEqual(None, result, result)
+
+
+
+    def boundingBoxSetUp(self, left, right, top, bottom):
+        test = LineArrangement(None)
+        test.boundingBox(left, right, top, bottom)
+        corners = [(left, top), (right, top), (right, bottom), (left, bottom)]
+        edge = test.outsideEdge
+
+        # check if edge is initialized properly
+        if edge.origin().coord() != (left, top) or edge.dest().coord() != (right, top):
+            return f"Error: outside edge not initialized properly. \nResult origin: {edge.origin().coord()}: Expected origin: {(left, top)}\nResult dest: {edge.dest().coord()}: Expected dest: {(right, top)}"
+
+
+        # traverse clockwise around the outside ():
+        for i in range(5):
+            index = i%4
+            if edge.origin().coord() != corners[index]:
+                return f"Error, outside edges: expected origin: {corners[index]} but was {edge.origin().coord()}"
+
+            edge = edge.next()
+
+        # traverse the interior of the box counter-clockwise
+        edge = edge.twin().next().next() # want first edge to ahve origin (left, top)
+        for i in range(4, -1, -1):
+            index = i%4
+
+            if edge.origin().coord() != corners[index]:
+                return f"Error, inside edges: expected origin: {corners[index]} but was {edge.origin().coord()}"
+
+            edge = edge.next()
+
+        return None
