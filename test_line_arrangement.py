@@ -49,6 +49,24 @@ class TestLine(unittest.TestCase):
          for i, line in enumerate(self.lineSet3):
               self.assertEqual(edgeLineInt[i], LA.lineEdgeInt(line, edge), f"Error: line edge intercept, line #{i+1}. \nExpected: {edgeLineInt[i]}, but got: {LA.lineEdgeInt(line, edge)}")
 
+    def test_leftMostEdge_1(self):
+         LA = LineArrangement(self.lineSet2)
+         LA.boundingBox(Fraction(5,3), 24, 16, Fraction(10,9))
+         leftTop = (Fraction(5, 3), 16)
+         rightTop = (24, 16)
+         leftBottom = (Fraction(5, 3), Fraction(10, 9))
+         rightBottom = (Fraction(24, Fraction(10, 9)))
+         expected_origin = [leftBottom, leftBottom, leftBottom, leftBottom, leftTop]
+         expected_dest = [leftTop, leftTop, leftTop, leftTop, rightTop]
+         for i, line in enumerate(self.lineSet1):
+              result = LA.leftMostedge(line)
+              result_origin = result.origin().coord()
+              result_dest = result.dest().coord()
+              self.assertEqual((result_origin, result_dest), (expected_origin[i], expected_dest[i]), f"Error in leftmost edge with line {i+1}. \nExpected: {expected_origin[i]}->{expected_dest[i]}.\nResult: {result_origin}->{result_dest}")
+
+
+
+
 
 
 
