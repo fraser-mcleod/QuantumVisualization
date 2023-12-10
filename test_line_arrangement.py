@@ -107,7 +107,7 @@ class TestLine(unittest.TestCase):
         for i, expected in enumerate(expected_vertices):
              self.assertEqual(expected, result_vertices[i], f"Error in line arrangement, index {i}.\nExpected: {expected_vertices}\nResult: {result_vertices}")
 
-    def test_addLine__interior_1(self):
+    def test_addLine__line_intersections_1(self):
         line = Line((0, 1), (4, 9))
         LA = LineArrangement([line])
         LA.boundingBox(0, 10, 10, 0)
@@ -117,7 +117,7 @@ class TestLine(unittest.TestCase):
         for i, expected in enumerate(expected_vertices):
              self.assertEqual(expected, result_vertices[i], f"Error in line arrangement, index {i}.\nExpected: {expected_vertices}\nResult: {result_vertices}")
 
-    def test_addLine__interior_2(self):
+    def test_addLine__line_intersections_2(self):
         line = Line((0, 12), (3, 0))
         LA = LineArrangement([line])
         LA.boundingBox(0, 10, 10, 0)
@@ -127,7 +127,7 @@ class TestLine(unittest.TestCase):
         for i, expected in enumerate(expected_vertices):
              self.assertEqual(expected, result_vertices[i], f"Error in line arrangement, index {i}.\nExpected: {expected_vertices}\nResult: {result_vertices}")
 
-    def test_addLine__interior_3(self):
+    def test_addLine__line_intersections_3(self):
         line = Line((0, 0), (2, 10))
         LA = LineArrangement([line])
         LA.boundingBox(0, 10, 10, 0)
@@ -137,7 +137,7 @@ class TestLine(unittest.TestCase):
         for i, expected in enumerate(expected_vertices):
              self.assertEqual(expected, result_vertices[i], f"Error in line arrangement, index {i}.\nExpected: {expected_vertices}\nResult: {result_vertices}")
 
-    def test_addLine__interior_4(self):
+    def test_addLine__line_intersections_4(self):
         l1 = Line((0, 1), (4, 9))
         l2 = Line((0, 12), (3, 0))
         LA = LineArrangement([l1, l2])
@@ -147,6 +147,21 @@ class TestLine(unittest.TestCase):
         # print(self.perimeterTraversal(LA, (0, 10)))
         expected_vertices = [(Fraction(1, 2), 10), (Fraction(11, 6), Fraction(14, 3)), (3, 0)]
         result_vertices = self.lineTraversal(LA, l2)
+        for i, expected in enumerate(expected_vertices):
+             self.assertEqual(expected, result_vertices[i], f"Error in line arrangement, index {i}.\nExpected: {expected_vertices}\nResult: {result_vertices}")
+
+    def test_addLine__line_intersections_5(self):
+        l1 = Line((0, 1), (4, 9))
+        l2 = Line((0, 12), (3, 0))
+        l3 = Line((0, 0), (1, 5))
+        LA = LineArrangement([l1, l2, l3])
+        LA.boundingBox(0, 10, 10, 0)
+        LA.addLine(l1)
+        LA.addLine(l2)
+        LA.addLine(l3)
+        # print(self.perimeterTraversal(LA, (0, 10)))
+        expected_vertices = [(0, 0), (Fraction(1, 3), Fraction(5, 3)), (Fraction(4, 3), Fraction(20, 3)), (2, 10)]
+        result_vertices = self.lineTraversal(LA, l3)
         for i, expected in enumerate(expected_vertices):
              self.assertEqual(expected, result_vertices[i], f"Error in line arrangement, index {i}.\nExpected: {expected_vertices}\nResult: {result_vertices}")
 
@@ -181,11 +196,11 @@ class TestLine(unittest.TestCase):
     def perimeterTraversal(self, LA: LineArrangement, start: tuple):
         """Output a list of visited coordinates on the outside face."""
         edge = LA.outsideEdge
-        print("\nOutside edge:", edge.toString())
+        # print("\nOutside edge:", edge.toString())
         while (edge.origin().coord() != start):
             edge = edge.next()
 
-        print(edge.toString())
+        # print(edge.toString())
         edgeList = [edge.origin().coord()]
         edge = edge.next()
         while edge.origin().coord() != edgeList[0]:
@@ -213,11 +228,11 @@ class TestLine(unittest.TestCase):
         # while edge is on a bounded face:
         while edge.boundedFace():
             # find next edge with an intersection with line
-            print(f"\nedge: {edge.toString()}\nnextEdge: {edge.next().toString()}")
+            # print(f"\nedge: {edge.toString()}\nnextEdge: {edge.next().toString()}")
             edge = edge.next()
             intersection = LA.lineEdgeInt(line, edge)
             while intersection is None:
-                print(f"\nedge: {edge.toString()}\nnextEdge: {edge.next().toString()}")
+                # print(f"\nedge: {edge.toString()}\nnextEdge: {edge.next().toString()}")
                 edge = edge.next()
                 intersection = LA.lineEdgeInt(line, edge)
 
