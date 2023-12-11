@@ -305,6 +305,8 @@ class LineArrangement:
     def setMaxVertex(self, v: Vertex):
         self._maxIntersectionVertex = v
 
+    def _maxIntersectionVertex(self) -> Vertex:
+        self._maxIntersectionVertex
     def maxIntersection(self):
         if self._maxIntersectionVertex is None:
             return 0
