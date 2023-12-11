@@ -32,9 +32,6 @@ class LineArrangement:
     """
     def __init__(self, lines: list[Line]):
         self.lines = lines
-        self.vertexRecord = []
-        self.faceRecord = []
-        self.edgeRecord = []
         self.outsideEdge = None
 
 
@@ -60,41 +57,27 @@ class LineArrangement:
         # only want to compute bounding box if the arrangement is currently null
         assert len(self.vertexRecord) == 0
 
-        # We will have 4 vertices, 8 half edges, and 2 faces
-
-        # TODO: vertex, edge, and face each need to be objects. That way we can actually store references to them
-        #      not just to where they live in the list
-
-        # add all four vertices and give reference to one of them with bounding box attribute
+        # create the four vertices
         v1 = Vertex((left, top), None)
         v2 = Vertex((right, top), None)
         v3 = Vertex((right, bottom), None)
         v4 = Vertex((left, bottom), None)
-        self.bbVertex = v1
 
-
-        # create two face objects - one bounded one unbounded
-        # boundedFace = Face(None, None)
-        # unBoundedFace = Face(None, None)
-
-
-        # add both half edges moving around counter-clockwise
+        # left edges
         e1 = HalfEdge(v1, v4, None, True, None, None)
         e2 = HalfEdge(v4, v1, e1, False, None, None)
         v1.setIncEdge(e1)
         v4.setIncEdge(e2)
         e1.setTwin(e2)
 
-        # self.unBoundedFace = unBoundedFace
-
-        # bottom edge
+        # bottom edges
         e3 = HalfEdge(v4, v3, None, True, None, e1)
         e1.setNext(e3)
         e4 = HalfEdge(v3, v4, e3, False, e2, None)
         e3.setTwin(e4)
         e2.setPrev(e4)
 
-        # right edge
+        # right edges
         e5 = HalfEdge(v3, v2, None, True, None, e3)
         e3.setNext(e5)
         e6 = HalfEdge(v2, v3, e5, False, e4, None)
@@ -103,8 +86,7 @@ class LineArrangement:
         e5.setTwin(e6)
         e4.setPrev(e6)
 
-        # top edge
-        # e7 = HalfEdge(v2, v1, None, boundedFace, e1, e5)
+        # top edges
         e7 = HalfEdge(v2, v1, None, True, e1, e5)
         e5.setNext(e7)
         e1.setPrev(e7)
@@ -122,7 +104,6 @@ class LineArrangement:
 
     def addLine(self, line: Line):
         """Add line to the existing arrangement"""
-
         e1 = self.leftMostedge(line).twin()  # twin so that it is interior edge
 
         # find intersection between line and edge, then determine if we need to create a new vertex
@@ -147,14 +128,10 @@ class LineArrangement:
             e1.twin().setDest(v1)
             e1.twin().setNext(edgeSplit2)
 
-
-
         # while e1 is on a bounded face
         while (e1.boundedFace()):
             e1 = self.faceSplit(e1, v1, line)
             v1 = e1.origin()
-
-
 
 
 
@@ -163,7 +140,7 @@ class LineArrangement:
 
 
 
-        Given an edge e1, its origin v1, and a line that passes through v1. Traverse the bounded
+        Given an edge e1, its origin v1, and a line that passes through v1, traverse the bounded
         face to find the next edge that intersects the line. Split this face into a face left of
         the line and a face right of the line. Then, find and return the next edge to traverse.
 
@@ -191,15 +168,15 @@ class LineArrangement:
             e1.prev().setNext(newEdge2)
             e1.setPrev(newEdge1)
 
-            # find the and return the correct edge of the next face:
+            # find the slope of edge adjacent to the right of line to find the
             nextEdge = newEdge2.next()
             slope = Line(nextEdge.dest().coord(), nextEdge.origin().coord()).slope()  # slope of edge on right side of line
             nextEdge = nextEdge.twin().next()
-            slopeTest = Line(nextEdge.dest().coord(), nextEdge.origin().coord()).slope()
+            tempSlope = Line(nextEdge.dest().coord(), nextEdge.origin().coord()).slope()
             # find the edge on the left side of line whose slope is equal to above slope
-            while (slope != slopeTest):
+            while (slope != tempSlope):
                 nextEdge = nextEdge.twin().next()
-                slopeTest = Line(nextEdge.dest().coord(), nextEdge.origin().coord()).slope()
+                tempSlope = Line(nextEdge.dest().coord(), nextEdge.origin().coord()).slope()
 
             return nextEdge
 
@@ -246,7 +223,6 @@ class LineArrangement:
             return e2.twin()
 
 
-
     def lineEdgeInt(self, line: Line, edge: HalfEdge) -> tuple:
         """Return the intersection point between the given line and edge, if it exists"""
         l2 = Line(edge.origin().coord(), edge.dest().coord())
@@ -291,12 +267,7 @@ class LineArrangement:
         if leftMostEdge.origin().coord() == leftMostIntersection:
             leftMostEdge = leftMostEdge.prev()
 
-
         return leftMostEdge
-
-
-
-
 
 
     def extremePoints(self) -> tuple[Fraction]:
@@ -324,7 +295,6 @@ class LineArrangement:
                     top = y
 
         return (left, right, top, bottom)
-
 
 
 
@@ -356,10 +326,6 @@ class Vertex:
 
     def coord(self) -> tuple:
         return self._coord
-
-
-
-
 
 
 
@@ -444,9 +410,6 @@ class HalfEdge:
 
 
 
-
-
-
 class Line():
     """Represent a line
 
@@ -457,7 +420,6 @@ class Line():
         xInt: the x-intercept
         yInt: the y-intercept
     """
-
     def __init__(self, p1: tuple, p2:tuple):
         self._p1 = p1
         self._p2 = p2
@@ -485,8 +447,6 @@ class Line():
         else:
             self._xInt = p1[0]
             self._slope = None
-
-
 
 
     def intercept(self, l: Line) -> tuple[Fraction]:
@@ -528,8 +488,6 @@ class Line():
                             x = Fraction(l.yInt() - self.yInt(), self.slope() - l.slope())
                             y = Fraction(self.slope()*x + self.yInt())
         return (x, y)
-
-
 
     def isVertical(self) -> bool:
         return self.yInt() is None
