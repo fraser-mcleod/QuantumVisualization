@@ -181,6 +181,7 @@ class TestLine(unittest.TestCase):
         for i, expected in enumerate(expected_vertices):
              self.assertEqual(expected, result_vertices[i], f"Error in line arrangement, index {i}.\nExpected: {expected_vertices}\nResult: {result_vertices}")
 
+
     def test_addLine_interiorFaces_1(self):
         line = Line((0, 1), (4, 9))
         LA = LineArrangement([line])
@@ -209,6 +210,23 @@ class TestLine(unittest.TestCase):
         for i, rightCoord in enumerate(rightFaceVertices):
             self.assertEqual(rightCoord, rightResultVertices[i], f"Error in right face: expected: {rightFaceVertices}. But result: {rightResultVertices}")
 
+    def test_addLine_interiorFaces_3(self):
+        l1 = Line((0, 1), (1, 3))
+        l2 = Line((2, 10), (2, 100))
+        l3 = Line((0, 5), (10, 5))
+        l4 = Line((0, -3), (1, 1))
+        LA = LineArrangement([l1, l2, l3, l4])
+        LA.boundingBox(0, 10, 10, 0)
+        LA.addLine(l1)
+        LA.addLine(l2)
+        LA.addLine(l3)
+        LA.addLine(l4)
+        leftEdge = LA.leftMostedge(l4).twin()
+        leftFaceVertices = [(Fraction(3, 4), 0), (2, 0), (2, 5)]
+        leftResultVertices = self.faceTraversal(LA, leftEdge)
+        for i, leftCoord in enumerate(leftFaceVertices):
+            self.assertEqual(leftCoord, leftResultVertices[i], f"Error in left face: expected: {leftFaceVertices}. But result: {leftResultVertices}")
+
 
 
     def perimeterTraversal(self, LA: LineArrangement, start: tuple):
@@ -232,7 +250,7 @@ class TestLine(unittest.TestCase):
         vertexList = [edge.origin().coord()]
         edge = edge.next()
         count = 0
-        while edge.origin().coord() != vertexList[-1] and count < 10:
+        while edge.origin().coord() != vertexList[0]:
             vertexList.append(edge.origin().coord())
             edge = edge.next()
             count +=1
