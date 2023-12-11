@@ -273,22 +273,32 @@ class LineArrangement:
             a tuple (left, right, top, bottom) of fractions representing the most extreme values
             of the intersection points
         """
-        left, top = self.lines[0].intercept(self.lines[1])
+        # find first non-null intersection to set initial values
+        k = 1
+        intersection = self.lines[0].intercept(self.lines[k])
+        while intersection is None:
+            k += 1
+            intersection = self.lines[0].intercept(self.lines[k])
+
+        left, top = intersection
         right, bottom = left, top
 
         # try every pair to find extremes
         for i in range(len(self.lines)-1):
             for j in range(i+1, len(self.lines)):
-                x, y = self.lines[i].intercept(self.lines[j])
-                if (x < left):
-                    left = x
-                elif (x > right):
-                    right = x
+                intersection = self.lines[i].intercept(self.lines[j])
+                if intersection is not None:
+                    x = intersection[0]
+                    y = intersection[1]
+                    if (x < left):
+                        left = x
+                    elif (x > right):
+                        right = x
 
-                if (y < bottom):
-                    bottom = y
-                elif (y > top):
-                    top = y
+                    if (y < bottom):
+                        bottom = y
+                    elif (y > top):
+                        top = y
 
         return (left, right, top, bottom)
 
