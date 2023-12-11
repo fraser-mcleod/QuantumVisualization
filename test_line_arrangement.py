@@ -1,6 +1,6 @@
 import unittest
 
-from src.QLines import *
+from src.LineArrangement import *
 
 class TestLine(unittest.TestCase):
     def setUp(self):
@@ -210,6 +210,7 @@ class TestLine(unittest.TestCase):
         for i, rightCoord in enumerate(rightFaceVertices):
             self.assertEqual(rightCoord, rightResultVertices[i], f"Error in right face: expected: {rightFaceVertices}. But result: {rightResultVertices}")
 
+
     def test_addLine_interiorFaces_3(self):
         l1 = Line((0, 1), (1, 3))
         l2 = Line((2, 10), (2, 100))
@@ -227,7 +228,21 @@ class TestLine(unittest.TestCase):
         for i, leftCoord in enumerate(leftFaceVertices):
             self.assertEqual(leftCoord, leftResultVertices[i], f"Error in left face: expected: {leftFaceVertices}. But result: {leftResultVertices}")
 
+    def test_maxDegree(self):
+        l1 = Line((0, 0), (2, 2))
+        l2 = Line((0, -8), (2, 2))
+        l3 = Line ((0, 22), (2, 2))
+        l4 = Line((0, 2), (2, 2))
+        l5 = Line((0,0), (6, 1))
+        l6 = Line((0, 20), (1, 13))
 
+
+        LA = LineArrangement([l1, l2, l3, l4, l5, l6])
+        print(LA.extremePoints())
+        LA.constructArrangement()
+        expected = 4
+        result = LA.maxIntersection()
+        self.assertEqual(expected, result, f"Error: expected max intersection={expected} but result={result}")
 
     def perimeterTraversal(self, LA: LineArrangement, start: tuple):
         """Output a list of visited coordinates on the outside face."""
@@ -245,6 +260,7 @@ class TestLine(unittest.TestCase):
             # print(f"edge: {edge.toSring()}, {edge}. \nNext edge: {edge.next().toSring()}, {edge.next()}")
         return edgeList
 
+
     def faceTraversal(self, LA: LineArrangement, edge: HalfEdge):
         """traverse the vertices of a face"""
         vertexList = [edge.origin().coord()]
@@ -256,6 +272,7 @@ class TestLine(unittest.TestCase):
             count +=1
 
         return vertexList
+
 
     def lineTraversal(self, LA: LineArrangement, line: Line) -> list[tuple]:
         """Output a list of vertices on the given line in the line arrangement"""
@@ -280,15 +297,6 @@ class TestLine(unittest.TestCase):
             # print(edge.incFace().outComp())
 
         return vertexList
-
-
-
-
-
-
-
-
-
 
 
     def boundingBoxSetUp(self, left, right, top, bottom):

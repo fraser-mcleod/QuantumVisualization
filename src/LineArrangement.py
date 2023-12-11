@@ -1,6 +1,4 @@
-
 from __future__ import annotations
-
 from fractions import Fraction
 
 
@@ -15,27 +13,17 @@ class LineArrangement:
 
     Attributes:
         lines: a list of lines in the plane.
-        vertexRecord: a list of dictionaries to represent the vertices of the arrangement. Each dictionary will have:
-                        coordinates: tuple (x, y)
-                        incidentEdge: reference to an arbitrary half edge with v as its origin
-        faceRecord: a list of disctionaries representing the faces of the arrangement. Each dict will have:
-                        outComp: reference to half edge on the outer boundary of f, null if unbounded
-                        inComp: reference to a half edge on a hole of a unbounded face
-        edgeRecord: a list of dictionaries to represent the half edges of the arrangement. Each dict will have:
-                        origin: the vertex origin
-                        twin: its twin half-edge, chosen s.t. incident face lies to the left of given half edge
-                        incidentFace: a lies to the left of edge e when traversed from origin destination.
-                        next: next edge on the boundary of incident face
-                        prev: previous edge on the boundary of incident face
-        bbVertex: refernce to the top left vertex of the bounding box
+        outsideEdge: an edge adjacent to the outside unbounded face
+        maxDegree: the maximum degree of a vertex
 
     """
     def __init__(self, lines: list[Line]):
         self.lines = lines
         self.outsideEdge = None
+        self._maxIntersectionVertex = None
 
 
-    def LineArrangement(self):
+    def constructArrangement(self):
         """Construct a line arrangement with the given set of lines"""
         # construct bounding boc
         left, right, top, bottom = self.extremePoints()
@@ -54,14 +42,12 @@ class LineArrangement:
             top: topmost value of the box
             bottom: bottommost value of the box
         """
-        # only want to compute bounding box if the arrangement is currently null
-        assert len(self.vertexRecord) == 0
 
-        # create the four vertices
-        v1 = Vertex((left, top), None)
-        v2 = Vertex((right, top), None)
-        v3 = Vertex((right, bottom), None)
-        v4 = Vertex((left, bottom), None)
+        # create the four vertices, with degree 0, since they arent formed by lines
+        v1 = Vertex((left, top), None, 0)
+        v2 = Vertex((right, top), None, 0)
+        v3 = Vertex((right, bottom), None, 0)
+        v4 = Vertex((left, bottom), None, 0)
 
         # left edges
         e1 = HalfEdge(v1, v4, None, True, None, None)
@@ -96,11 +82,6 @@ class LineArrangement:
         e6.setPrev(e8)
         self.outsideEdge = e8
 
-        # add edges and faces to record
-        self.vertexRecord.extend([v1, v2, v3, v4])
-        # self.faceRecord.extend([boundedFace, unBoundedFace])
-        self.edgeRecord.extend([e1, e2, e3, e4, e5, e6, e7, e8])
-
 
     def addLine(self, line: Line):
         """Add line to the existing arrangement"""
@@ -112,11 +93,11 @@ class LineArrangement:
             e1 = e1.next()  # want to be on 'left' side of vertex
 
         if p1 == e1.origin().coord():
-            e1.origin().degree += 1
+            e1.origin().degree += 1  # degree as in number of lines passing through it not number of edges
             v1 = e1.origin()
         else:
             # create a new vertex and split the edge
-            v1 = Vertex(p1, e1)
+            v1 = Vertex(p1, e1, 1)  # degree = 1 since only one line intersects it
             edgeSplit1 = HalfEdge(e1.origin(), v1, None, e1.boundedFace(), e1, e1.prev())
             edgeSplit2 = HalfEdge(v1, e1.origin(), edgeSplit1, e1.twin().boundedFace(), e1.twin().next(), e1.twin())
             edgeSplit1.setTwin(edgeSplit2)
@@ -128,16 +109,18 @@ class LineArrangement:
             e1.twin().setDest(v1)
             e1.twin().setNext(edgeSplit2)
 
+        # update max degree
+        if v1.degree > self.maxIntersection():
+            self.setMaxVertex(v1)
+
         # while e1 is on a bounded face
         while (e1.boundedFace()):
             e1 = self.faceSplit(e1, v1, line)
             v1 = e1.origin()
 
 
-
     def faceSplit(self, e1: HalfEdge, v1: Vertex, line: Line) -> HalfEdge:
         """Split the bounded face adjacent to e1 with respect to the given line
-
 
 
         Given an edge e1, its origin v1, and a line that passes through v1, traverse the bounded
@@ -157,8 +140,9 @@ class LineArrangement:
 
         # If p2 is a vertex already:
         if p2 == e2.dest().coord():
-            # create new vertex and two new edges connected to it
+            # set v2 and two new edges connected to it
             v2 = e2.dest()
+            v2.degree += 1
             newEdge1 = HalfEdge(v2, v1, None, True, e1, e2)
             newEdge2 = HalfEdge(v1, v2, newEdge1, True, e2.next(), e1.prev())
             newEdge1.setTwin(newEdge2)
@@ -178,12 +162,20 @@ class LineArrangement:
                 nextEdge = nextEdge.twin().next()
                 tempSlope = Line(nextEdge.dest().coord(), nextEdge.origin().coord()).slope()
 
+            # update max degree
+            if v2.degree > self.maxIntersection():
+                self.setMaxVertex(v2)
+
             return nextEdge
 
         # otherwise we need to make a vertex where p2 is
         else:
             # Construct v2 and new edges
             v2 = Vertex(p2, None)
+            if e2.twin().boundedFace():
+                v2.degree = 2  # two lines contribute to this face
+            else:
+                v2.degree = 1  # the given line contributes and the other line is artificial (bounding box)
             newEdge1 = HalfEdge(v2, v1, None, True, None, None)
             newEdge2 = HalfEdge(v1, v2, newEdge1, True, None, None)
             newEdge1.setTwin(newEdge2)
@@ -219,6 +211,10 @@ class LineArrangement:
             e2.setDest(v2)
             e2.twin().setOrigin(v2)
             v2.setIncEdge(newEdge3)
+
+            # set max degree
+            if v2.degree > self.maxIntersection():
+                self.setMaxVertex(v2)
 
             return e2.twin()
 
@@ -296,6 +292,15 @@ class LineArrangement:
 
         return (left, right, top, bottom)
 
+    def setMaxVertex(self, v: Vertex):
+        self._maxIntersectionVertex = v
+
+    def maxIntersection(self):
+        if self._maxIntersectionVertex is None:
+            return 0
+        else:
+            return self._maxIntersectionVertex.degree
+
 
 
 class Vertex:
@@ -307,10 +312,10 @@ class Vertex:
         degree: the degree of the vertex
     """
 
-    def __init__(self, coord: tuple, incEdge: HalfEdge):
+    def __init__(self, coord: tuple, incEdge: HalfEdge, degree=0):
         self._coord = coord
         self._incEdge = incEdge
-        self.degree = 2
+        self.degree = degree
 
     def x(self) -> float:
         return self._coord[0]

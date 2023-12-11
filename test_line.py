@@ -1,6 +1,6 @@
 import unittest
 
-from src.QLines import *
+from src.LineArrangement import *
 
 
 class TestLine(unittest.TestCase):
