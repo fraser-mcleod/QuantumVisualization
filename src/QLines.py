@@ -35,11 +35,17 @@ class LineArrangement:
         self.vertexRecord = []
         self.faceRecord = []
         self.edgeRecord = []
-        self.unBoundedFace = None
         self.outsideEdge = None
-        # create arrangement
-        # left, right, top, bottom = self.findExtreme()
-        # self.boundingBox(left, right, top, bottom)
+
+
+    def LineArrangement(self):
+        """Construct a line arrangement with the given set of lines"""
+        # construct bounding boc
+        left, right, top, bottom = self.extremePoints()
+        self.boundingBox(left, right, top, bottom)
+        # iteratively add each line to the arrangement
+        for line in self.lines:
+            self.addLine(line)
 
 
     def boundingBox(self, left: Fraction, right: Fraction, top: Fraction, bottom: Fraction):
@@ -116,9 +122,9 @@ class LineArrangement:
 
     def addLine(self, line: Line):
         """Add line to the existing arrangement"""
-        print(f"Add line: {line.toString()}")
+        # print(f"Add line: {line.toString()}")
         e1 = self.leftMostedge(line).twin()  # twin so that it is interior edge
-        print(f"LME: {e1.toString()}")
+        # print(f"LME: {e1.toString()}")
         # find intersection between line and edge, then determine if we need to create a new vertex
         p1 = self.lineEdgeInt(line, e1)
         if p1 == e1.dest().coord():
