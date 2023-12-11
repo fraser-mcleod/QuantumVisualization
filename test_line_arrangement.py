@@ -107,6 +107,22 @@ class TestLine(unittest.TestCase):
         for i, expected in enumerate(expected_vertices):
              self.assertEqual(expected, result_vertices[i], f"Error in line arrangement, index {i}.\nExpected: {expected_vertices}\nResult: {result_vertices}")
 
+    def test_addLine_perimeter_5(self):
+        l1 = Line((0, 1), (1, 3))
+        l2 = Line((2, 10), (2, 100))
+        l3 = Line((0, 5), (10, 5))
+        l4 = Line((0, -3), (1, 1))
+        LA = LineArrangement([l1, l2, l3, l4])
+        LA.boundingBox(0, 10, 10, 0)
+        LA.addLine(l1)
+        LA.addLine(l2)
+        LA.addLine(l3)
+        LA.addLine(l4)
+        expected_vertices = [(0, 10), (2, 10), (Fraction(13, 4), 10), (Fraction(9, 2), 10), (10, 10), (10, 5), (10, 0), (2, 0), (Fraction(3, 4), 0), (0,0), (0, 1), (0, 5)]
+        result_vertices = self.perimeterTraversal(LA, (0, 10))
+        for i, expected in enumerate(expected_vertices):
+             self.assertEqual(expected, result_vertices[i], f"Error in line arrangement, index {i}.\nExpected: {expected_vertices}\nResult: {result_vertices}")
+
     def test_addLine__line_intersections_1(self):
         line = Line((0, 1), (4, 9))
         LA = LineArrangement([line])
@@ -192,6 +208,8 @@ class TestLine(unittest.TestCase):
 
         for i, rightCoord in enumerate(rightFaceVertices):
             self.assertEqual(rightCoord, rightResultVertices[i], f"Error in right face: expected: {rightFaceVertices}. But result: {rightResultVertices}")
+
+
 
     def perimeterTraversal(self, LA: LineArrangement, start: tuple):
         """Output a list of visited coordinates on the outside face."""
