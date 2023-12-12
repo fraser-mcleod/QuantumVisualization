@@ -356,13 +356,13 @@ class LineArrangement:
                     elif (y > top):
                         top = y
 
-        return (Fraction(left-1), Fraction(right+11), Fraction(top+1), Fraction(bottom-1))
+        return (Fraction(left-1), Fraction(right+1), Fraction(top+1), Fraction(bottom-1))
 
     def setMaxVertex(self, v: Vertex):
         self._maxIntersectionVertex = v
 
     def maxIntersectionVertex(self) -> Vertex:
-        self._maxIntersectionVertex
+        return self._maxIntersectionVertex
 
     def maxIntersection(self):
         if self._maxIntersectionVertex is None:
