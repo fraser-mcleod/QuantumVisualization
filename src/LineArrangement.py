@@ -30,6 +30,7 @@ class LineArrangement:
         self.boundingBox(left, right, top, bottom)
         # iteratively add each line to the arrangement
         for line in self.lines:
+            print(line.toString())
             self.addLine(line)
 
 
@@ -95,6 +96,51 @@ class LineArrangement:
         if p1 == e1.origin().coord():
             e1.origin().degree += 1  # degree as in number of lines passing through it not number of edges
             v1 = e1.origin()
+            # TODO find the edge incident to v which has smallest angle left of line
+            # e1_test = e1
+            # slope = line.slope()
+            # if slope is None:  # if slope is vertical
+            #     slopeTest = Line(e1_test.origin().coord(), e1_test.dest().coord()).slope()
+            #     while slopeTest > 0:  # assume not equal
+            #         e1_test = e1_test.prev().twin()
+            #         slopeTest = Line(e1_test.origin().coord(), e1_test.dest().coord()).slope()
+            #     e1 = e1_test.twin().next()
+            # elif slope == 0:  # if slope is horizontal
+            #     e1_test = e1_test.prev().twin()
+            #     slopeTest = Line(e1_test.origin().coord(), e1_test.dest().coord()).slope()
+            #     while slopeTest < 0:
+            #         e1_test = e1_test.prev().twin()
+            #         slopeTest = Line(e1_test.origin().coord(), e1_test.dest().coord()).slope()
+            #     e1 = e1_test.twin().next()
+            # else:
+            #     slopeTest = Line(e1_test.origin().coord(), e1_test.dest().coord()).slope()
+            #     if slopeTest is None:
+            #         e1_test = e1_test.prev().twin()
+            #         slopeTest = Line(e1_test.origin().coord(), e1_test.dest().coord()).slope()
+            #         while (slopeTest < slope):
+            #             e1_test = e1_test.prev().twin()
+            #             slopeTest = Line(e1_test.origin().coord(), e1_test.dest().coord()).slope()
+            #         e1 = e1_test.twin().next()
+            #     elif slope > 0:
+            #         e1_test = e1_test.prev().twin()
+            #         slopeTest = Line(e1_test.origin().coord(), e1_test.dest().coord()).slope()
+            #         while (slopeTest < slope):
+            #             e1_test = e1_test.prev().twin()
+            #             slopeTest = Line(e1_test.origin().coord(), e1_test.dest().coord()).slope()
+            #         e1 = e1_test.twin().next()
+            #     else:
+            #         e1_test = e1_test.prev().twin()
+            #         slopeTest = Line(e1_test.origin().coord(), e1_test.dest().coord()).slope()
+            #         count = 0
+            #         while (slopeTest > slope):
+            #             count += 1
+            #             e1_test = e1_test.twin().next()
+            #             slopeTest = Line(e1_test.origin().coord(), e1_test.dest().coord()).slope()
+
+            #         for i in range(count-1):
+            #             e1 = e1.prev().twin()
+
+
         else:
             # create a new vertex and split the edge
             v1 = Vertex(p1, e1, 1)  # degree = 1 since only one line intersects it
@@ -113,10 +159,19 @@ class LineArrangement:
         if v1.degree > self.maxIntersection():
             self.setMaxVertex(v1)
 
+        # print(f"e1:{e1.toString()}")
+        # print(f"e1.next():{e1.next().toString()}")
+        # print(f"e1.next().next(): {e1.next().next().toString()}")
+        # print(self.lineEdgeInt(line, e1.next()))
         # while e1 is on a bounded face
+        count = 0
         while (e1.boundedFace()):
             e1 = self.faceSplit(e1, v1, line)
             v1 = e1.origin()
+            count+=1
+            if count > 20:
+                exit()
+
 
 
     def faceSplit(self, e1: HalfEdge, v1: Vertex, line: Line) -> HalfEdge:
@@ -137,6 +192,7 @@ class LineArrangement:
         while p2 is None:
             e2 = e2.next()
             p2 = self.lineEdgeInt(line, e2)
+
 
         # If p2 is a vertex already:
         if p2 == e2.dest().coord():
@@ -300,13 +356,14 @@ class LineArrangement:
                     elif (y > top):
                         top = y
 
-        return (left, right, top, bottom)
+        return (Fraction(left-1), Fraction(right+11), Fraction(top+1), Fraction(bottom-1))
 
     def setMaxVertex(self, v: Vertex):
         self._maxIntersectionVertex = v
 
-    def _maxIntersectionVertex(self) -> Vertex:
+    def maxIntersectionVertex(self) -> Vertex:
         self._maxIntersectionVertex
+
     def maxIntersection(self):
         if self._maxIntersectionVertex is None:
             return 0
