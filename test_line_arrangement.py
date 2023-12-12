@@ -20,15 +20,15 @@ class TestLine(unittest.TestCase):
 
     def test_ExtremePoints_1(self):
           test = LineArrangement(self.lineSet1)
-          self.assertEqual(test.extremePoints(), (Fraction(5, 9), 13, 125, Fraction(-13, 3)))
+          self.assertEqual(test.extremePoints(), (Fraction(5, 9)-1, 13+1, 125+1, Fraction(-13, 3)-1))
 
     def test_ExtremePoints_2(self):
         test = LineArrangement(self.lineSet2)
-        self.assertEqual(test.extremePoints(), (Fraction(5, 3), Fraction(24, 1), Fraction(16, 1), Fraction(10, 9)))
+        self.assertEqual(test.extremePoints(), (Fraction(5, 3)-1, Fraction(24, 1)+1, Fraction(16, 1)+1, Fraction(10, 9)-1))
 
     def test_ExtremePoints_3(self):
         test = LineArrangement(self.lineSet3)
-        self.assertEqual(test.extremePoints(), (0, 24, 125, -17))
+        self.assertEqual(test.extremePoints(), (0-1, 24+1, 125+1, -17-1))
 
     def test_boundingBox_1(self):
          result = self.boundingBoxSetUp(Fraction(5, 9), 13, 125, Fraction(-13, 3))
