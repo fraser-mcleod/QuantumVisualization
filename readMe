@@ -1,5 +1,3 @@
-Hello Siemens team! :)
-
 The code I have provided is an algorithm to construct an arrangement of lines
 in O(n^2). Two python files are provided: main.py is there to showcase some
 examples and LineArrangement.py includes the data structures and algorithms.
