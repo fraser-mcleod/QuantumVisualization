@@ -1,0 +1,26 @@
+Hello Siemens team! :)
+
+The code I have provided is an algorithm to construct an arrangement of lines
+in O(n^2). Two python files are provided: main.py is there to showcase some
+examples and LineArrangement.py includes the data structures and algorithms.
+Of particular interest is addLine() and faceSplit() on lines 87-220 of
+LineArrangement.py which are the trickiest and most important part of the l
+ine arrangement algorithm.
+
+To help you understand the code more, here are some pictures to help visualize
+the steps in addLine() and faceSplit() (taken from Computational Geometry: Algorithms
+and Applications [de Berg, Cheong, Keveld, and Overmars]).
+
+![Alt text](<Add Line - Line Arrangement.PNG>)
+
+![Alt text](<Split Face - Line Arrangement.PNG>)
+
+As well as a visualization of the example in main:
+
+![Alt text](<Line Arrangement Example.PNG>)
+
+
+This file is part of a larger project I am working on to visualize and implement
+theoretical quantum computer algorithms I developed this summer working at the
+U of S. For each of these quantum algorithms, constructing line arrangements was
+an important sub-routine which I wanted to implement.
